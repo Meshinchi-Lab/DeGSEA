@@ -24,4 +24,5 @@ Imports:
     stringr,
     survival,
     tibble,
-    tidyr
+    tidyr,
+    vegan

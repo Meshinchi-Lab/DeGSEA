@@ -50,7 +50,17 @@ colorVectors_asList <- function(df){
 
 
 
-#Create a color codes
+#
+#' Create a color codes
+#'
+#' @param df cleaned clinical characteristics, with patient IDs as rownames
+#' @param random boolean. should colors be selected by random sampling.
+#'
+#' @return list
+#' @export
+#'
+#' @examples
+#' ex <- c('TBD')
 colorCodes_aheatmap <- function(df,random=FALSE){
   #df of cleaned clinical characteristics, such as annoDF,   patient IDs as rownames
   library(RColorBrewer)
