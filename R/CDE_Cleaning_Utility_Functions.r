@@ -7,7 +7,7 @@
 #' @param col1 the unquoted column name
 #' @param col2 the unquoted column name
 #'
-#' @return
+#' @return data.frame
 #' @export
 #'
 #' @examples
@@ -26,14 +26,17 @@ mergeMolCols <- function(col1,col2){
   return(data)
 }
 
-my_data <- data.frame(Sample=paste0("s",1:20),
-                      mutationA=sample(c("Yes","No"), size=20, replace=T),
-                      mutationB=sample(c("Yes","No"), size=20, replace=T))
-
-my_data %>%
-  mutate(both_mutations=)
-
-
+#' For each duplicate USI, collapse the columns' information so that it will be seperated by a semi-colon.
+#'
+#' @param df the data.frame
+#' @param ID.column the name of the column with sample IDs
+#' @param duplicate boolean if sample ID is duplicated or not
+#'
+#' @return data.frame
+#' @export
+#'
+#' @examples
+#' my_data <- data.frame(Sample=paste0("s",1:20), mutationA=sample(c("Yes","No"), size=20, replace=T), mutationB=sample(c("Yes","No"), size=20, replace=T))
 collapseDuplicates <- function(df,ID.column,duplicate){
   #Purpose: for each duplicate USI, collapse the columns' information so that it will be seperated by a semi-colon.
   #This retains all information for each sample, but can remove duplicate USIs.

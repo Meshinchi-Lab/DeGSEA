@@ -720,7 +720,7 @@ quickPheatmap <- function(expn,geneList, clinData,
                      scale = "row",
                      # breaks = Breaks,
                      cluster_rows=FALSE,
-                     cluster_cols=cluster_
+                     cluster_cols=TRUE,
                      clustering_method="complete",
                      clustering_distance_cols="euclidean",
                      annotation_names_col=TRUE,
