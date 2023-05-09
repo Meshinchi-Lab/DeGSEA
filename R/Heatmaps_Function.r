@@ -89,16 +89,26 @@ colorCodes_aheatmap <- function(df,random=FALSE){
   return(list)
 }
 
-# cc <- NULL
-# for (i in 1:length(groups)){
-#    set.seed(1)
-#   c <- ifelse(random, sample(colors, size=1), colors[i])
-#   c <- ifelse(any(grepl(c,cc)),sample(colors, size=1),c)
-#
-#   cc <- c(cc,c)
-#  }
 
-#changed on 2/14/18, see bottom of Heatmaps_Function.r for the original one used.
+
+#' Create dendrogram from DGE object
+#'
+#' @param expnData normalized expression data or count data, patient IDs are column names and rows are genes.
+#' @param pheno  a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
+#' @param method cluster method
+#' @param genelist a character vector with the genes of interest
+#' @param add.count psuedocount value for log2 transformation
+#' @param percent is the % of samples in the input expn matrix that must express a gene at 1 CPM. Filter to remove low count genes.
+#' @param filterTopGenes boolean. If TRUE filter top 1000 most varied genes.
+#' @param createDGE boolean. TRUE if raw counts are input.
+#' @param log boolean. Yes/No for log2 transformation.
+#'
+#' @return list
+#' @export
+#'
+#' @examples
+#'
+#' ex <- c('TBD')
 dge_dendrograms <- function(expnData, pheno, method,
                             genelist=NULL,add.count=0.01, percent=0.01,
                             filterTopGenes=FALSE, createDGE=TRUE,log=FALSE){
@@ -427,6 +437,21 @@ annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColor
 
 
 
+#' Create ComplexHeatmap annotation object
+#'
+#' @param expn the normalized expression values with genes as rownames
+#' @param geneList a character vector
+#' @param goi genes of interest to label on the Heatmap. Character vector of gene symbols
+#' @param cc color codes as a named character vector.
+#' @param CDE clinical data. has column called USI
+#' @param cols character vector of column names in CDE
+#' @param colorbar.height numeric heigh in cm
+#'
+#' @return list
+#' @export
+#'
+#' @examples
+#' ex <- c('TBD')
 create_HA_Labs_Hmap <- function(expn,geneList, goi=NULL,cc=NULL, CDE, cols,
                                 colorbar.height=5){
   #expn is the normalized expression values with genes as rownames
@@ -514,6 +539,26 @@ create_HA_Labs_Hmap <- function(expn,geneList, goi=NULL,cc=NULL, CDE, cols,
 
 
 
+#' Create ComplexHeatmap plot
+#'
+#' @param mat the normalized, log2 (usually) transformed counts
+#' @param name is the title
+#' @param scale boolean whether to scale by row
+#' @param threshold whether to make all z-scores in a certain range.
+#' @param hmap_anno_obj from HeatmapAnnotation() function
+#' @param hmap_anno_obj_genes from HeatmapAnnotation() function
+#' @param space.type value for color palette, like sRGB or LAB
+#' @param color_palette colors vector from circlize::colorRamp2
+#' @param split data.frame with the groups identifying which rows to split.
+#' @param cluster.method method for dendrogram.
+#' @param dge_dendrograms.res the object from DeGSEA::dge_dendrograms()
+#' @param samp_dend_order  numeric vector or character vector of column names from the matrix (mat) or the dge_dengrograms.res$TMMCPM matix, in the desired order.
+#'
+#' @return complexHeatmap object
+#' @export
+#'
+#' @examples
+#' ex <- c('TBD')
 ComplexHmap <- function(mat, name="z-scores",
                         scale=TRUE,threshold=FALSE,
                         hmap_anno_obj,
@@ -737,140 +782,3 @@ quickPheatmap <- function(expn,geneList, clinData,
   return(p)
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# dendrograms <- function(df, pheno, genelist, log=TRUE, method="ward.D2"){
-#   #df with TPM or RPKM normalized data, patient IDs are column names and rows are genes.
-#   #pheno is a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
-#   #genelist is a character vector with the genes of interest
-#   #log is whether or not the data is already in log2 scale
-#   require(edgeR)
-#   suppressPackageStartupMessages(library(dendextend))
-#
-#   #ensure correct order,
-#   df <- df[, intersect(names(pheno), colnames(df))]
-#
-#   df <- df[which(rownames(df) %in% genelist), ] #subset the matrix to genes of interest
-#
-#   if(log){
-#     #updated 7/26/18 to avoid outliers
-#     df <- as.data.frame(apply(df, 2, function(x) log2(x + 1))) #log2 transform counts
-#     # TMMCPM10 <- as.data.frame(apply(TMMCPM, 2, function(x) log10(x + 0.01))) #log10 transform counts
-#   }
-#
-#
-#   d1 <- dist(t(df), method = "euclidean", diag = FALSE,
-#              upper = FALSE) #sample distances WITHOUT SCALING
-#   d2 <- dist(df, method = "euclidean", diag = FALSE,
-#              upper = TRUE) #gene distances WITHOUT SCaling
-#
-#   c1 <- hclust(d1, method = method, members = NULL) #sample clustering
-#   c2 <- hclust(d2, method = method, members = NULL) #gene clustering
-#
-#
-#   list <- list(df, d1,d2,c1,c2)
-#   names(list) <- c("expnData", "d1", "d2", "c1", "c2")
-#
-#   return(list)
-# }
-
-
-
-
-# dge_dendrograms <- function(expData, pheno, genelist,method){
-#   #df with count data, patient IDs are column names and rows are genes.
-#   #pheno is a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
-#   #genelist is a character vector with the genes of interest
-#   require(edgeR)
-#   library(dendextend)
-#
-#   expData <- expData[, intersect(names(pheno), colnames(expData))] #ensure correct order, drop rows with nas just in case
-#
-#
-#   dge <- DGEList(counts = expData)
-#   dge <- calcNormFactors(dge)
-#
-#   TMMCPM <- cpm(dge, normalized.lib.sizes = TRUE)
-#   TMMCPM <- TMMCPM[which(rownames(TMMCPM) %in% genelist), ] #subset the matrix to genes of interest
-#
-#   names <- rownames(TMMCPM)
-#   TMMCPM <- as.data.frame(apply(TMMCPM, 2, function(x) log2(x + 0.01))) #log2 transform counts
-#
-#
-#   d1 <- dist(t(TMMCPM), method = "euclidean", diag = FALSE,
-#              upper = FALSE) #sample distances WITHOUT SCALING
-#   d2 <- dist(TMMCPM, method = "euclidean", diag = FALSE,
-#              upper = TRUE) #gene distances WITHOUT SCaling
-#
-#   c1 <- hclust(d1, method = method, members = NULL) #sample clustering
-#   c2 <- hclust(d2, method = method, members = NULL) #gene clustering
-#
-#
-#   list <- list(TMMCPM,names, d1,d2,c1,c2)
-#   names(list) <- c("TMMCPM","names", "d1", "d2", "c1", "c2")
-#
-#   return(list)
-# }
-#
-# dge_dendrograms <- function(expData, pheno, genelist,method,filter=FALSE){
-#   #df with count data, patient IDs are column names and rows are genes.
-#   #pheno is a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
-#   #genelist is a character vector with the genes of interest
-#   require(edgeR)
-#   library(dendextend)
-#
-#   expData <- expData[, intersect(names(pheno), colnames(expData))] #ensure correct order, drop rows with nas just in case
-#   dge <- DGEList(counts = expData)
-#
-#   if (filter){
-#     #updated on 10/11/17 to add AML samples CPM cutoff before calc. norm factors.
-#     AML <- ! grepl("^BM|^RO", colnames(expData))
-#     AMLsamples <- ncol(expData[,AML])
-#     keep.dge <- rowSums(cpm(dge)[,AML] >= 1) > (0.05*AMLsamples) #5% of AML samples has cpm of at least 1 for a gene. This should help if looking for genes that are low or absent in NBMs vs AMLs
-#     dge <- dge[keep.dge,] #subset for those
-#   }
-#
-#   dge <- calcNormFactors(dge)
-#   TMMCPM <- cpm(dge, normalized.lib.sizes = TRUE)
-#   TMMCPM <- TMMCPM[which(rownames(TMMCPM) %in% genelist), ] #subset the matrix to genes of interest
-#
-#   names <- rownames(TMMCPM)
-#   TMMCPM <- as.data.frame(apply(TMMCPM, 2, function(x) log2(x + 0.01))) #log2 transform counts
-#
-#
-#   d1 <- dist(t(TMMCPM), method = "euclidean", diag = FALSE,
-#              upper = FALSE) #sample distances WITHOUT SCALING
-#   d2 <- dist(TMMCPM, method = "euclidean", diag = FALSE,
-#              upper = TRUE) #gene distances WITHOUT SCaling
-#
-#   c1 <- hclust(d1, method = method, members = NULL) #sample clustering
-#   c2 <- hclust(d2, method = method, members = NULL) #gene clustering
-#
-#
-#   list <- list(TMMCPM,names, d1,d2,c1,c2)
-#   names(list) <- c("TMMCPM","names", "d1", "d2", "c1", "c2")
-#
-#   return(list)
-# }
