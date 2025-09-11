@@ -24,7 +24,7 @@ matchMatrix <- function(annodf, ExpnMatrix){
 }
 
 colorVectors_asList <- function(df){
-  library(RColorBrewer)
+  # library(RColorBrewer)
   #df of cleaned clinical characteristics. patient IDs as rownames
 
   cols <- colnames(df)
@@ -63,7 +63,7 @@ colorVectors_asList <- function(df){
 #' ex <- c('TBD')
 colorCodes_aheatmap <- function(df,random=FALSE){
   #df of cleaned clinical characteristics, such as annoDF,   patient IDs as rownames
-  library(RColorBrewer)
+  # library(RColorBrewer)
   cols <- colnames(df)
 
   list <- NULL
@@ -128,9 +128,9 @@ dge_dendrograms <- function(expnData, pheno, method,
   #percent is the % of samples in the input expn matrix that must express a gene at 1 CPM. Filter to remove low count genes.
   #set log=TRUE if providing a log2 expression dataframe.
   #filterTopGenes shuold be a logical. If TRUE filter top 1000 most varied genes.
-  require(edgeR)
-  suppressPackageStartupMessages(library(dendextend))
-  library(matrixStats)
+  # require(edgeR)
+  # suppressPackageStartupMessages(library(dendextend))
+  # library(matrixStats)
 
   expnData <- expnData[, intersect(names(pheno), colnames(expnData))] #ensure correct order, drop rows with nas just in case
 
@@ -206,8 +206,8 @@ dge_dends_scale <- function(df, pheno, genelist, method){
   #df with count data, patient IDs are column names and rows are genes.
   #pheno is a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
   #genelist is a character vector with the genes of interest
-  require(edgeR)
-  suppressPackageStartupMessages(library(dendextend))
+  # require(edgeR)
+  # suppressPackageStartupMessages(library(dendextend))
 
   df <- df[, intersect(names(pheno), colnames(df))] #ensure correct order, drop rows with nas just in case
 
@@ -292,8 +292,8 @@ colorDends <- function(hclustObject, colorCodes, group, textsize){
 #Function for Grouping and Splitting Trees
 colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
                               branchCol=NULL,colorcodes){
-  library(RColorBrewer)
-  suppressPackageStartupMessages(library(dendextend))
+  # library(RColorBrewer)
+  # suppressPackageStartupMessages(library(dendextend))
   #branchCol is a vector of length K, with the colors for the branches.
   #color codes is a named character vector for the known groups (eg c(pos="red, neg="blue)) for the leaves.
 
@@ -340,9 +340,9 @@ colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
 
 
 basicHeatmap <- function(ExpnMatrix, geneDend, sampleDend, colors,title){
-  require(gplots)
-  library(colorspace)
-  suppressPackageStartupMessages(library(dendextend))
+  # require(gplots)
+  # library(colorspace)
+  # suppressPackageStartupMessages(library(dendextend))
 
   #ExpnMatrix is the genes as rownames, patient IDs as colnames
   #genedend is from hclust object
@@ -400,10 +400,10 @@ basicHeatmap <- function(ExpnMatrix, geneDend, sampleDend, colors,title){
 
 
 annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColors,main=NULL){
-  require(NMF)
-  suppressPackageStartupMessages(library(dendextend))
-  library(colorspace)
-  library(grid)
+  # require(NMF)
+  # suppressPackageStartupMessages(library(dendextend))
+  # library(colorspace)
+  # library(grid)
 
   # colorPal <- colorRampPalette(c("blue", "white", "red"))(n=299)
   #colorPal <- colorRampPalette(c("darkgreen", "forestgreen", "green3", "green2", "black", "firebrick1", "red3", "red4", "darkred"))(n=299)
@@ -477,8 +477,8 @@ create_HA_Labs_Hmap <- function(expn,geneList, goi=NULL,cc=NULL, CDE, cols,
   #hmap <- ComplexHmap(XXXX, hmap_anno_obj=res$annoColumn, XXX)
   # draw(hmap + res$geneLabels, heatmap_legend_side="right", annotation_legend_side="right")
 
-    library(dplyr)
-    suppressPackageStartupMessages(library(ComplexHeatmap))
+    # library(dplyr)
+    # suppressPackageStartupMessages(library(ComplexHeatmap))
 
     #subset the expression matix
     expn <- expn[geneList,]
@@ -588,11 +588,11 @@ ComplexHmap <- function(mat, name="z-scores",
   #dge_dendrograms.res is the list object output from the dge_dendrograms() function.
   #samp_dend_order is the numeric vector or character vector of column names from the matrix (mat) or the dge_dengrograms.res$TMMCPM matix, in the desired order.
 
-  suppressPackageStartupMessages(library(ComplexHeatmap))
-  suppressPackageStartupMessages(require(circlize))
-  library(RColorBrewer)
-  suppressPackageStartupMessages(library(dendextend))
-  ht_opt$message = FALSE
+  # suppressPackageStartupMessages(library(ComplexHeatmap))
+  # suppressPackageStartupMessages(require(circlize))
+  # library(RColorBrewer)
+  # suppressPackageStartupMessages(library(dendextend))
+  # ht_opt$message = FALSE
 
   if(threshold){
     mat[mat > 4] <- 4
@@ -734,7 +734,7 @@ quickPheatmap <- function(expn,geneList, clinData,
   #expn has rows with genes as rownames
   #clinData has rowns with patient USIs as rownames - matches the expn data column names
 
-  library(pheatmap)
+  # library(pheatmap)
 
   len <- 299
   col <- colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=len)

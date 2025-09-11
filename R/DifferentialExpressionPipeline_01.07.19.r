@@ -14,9 +14,9 @@
 
 #Function to create a gene ID map for ensembl gene_id, and transcript_ids
 getIDmap <- function(GTF){
-  library(dplyr)
-  library(tibble)
-  options(stringsAsFactors = FALSE)
+  # library(dplyr)
+  # library(tibble)
+  # options(stringsAsFactors = FALSE)
 
   #standard ensembl GTF format and gencode GTF.
   tx <- GTF %>%
@@ -33,23 +33,9 @@ getIDmap <- function(GTF){
 }
 
 
-#custom GGPlot theme
-library(pryr)
-library(ggplot2)
-theme_numX %<a-% { theme(plot.title = element_text(hjust = 0.5, size = 18),
-                         panel.background = element_rect(fill="white"),
-                         panel.grid.major = element_blank(),
-                         panel.grid.minor = element_blank(),
-                         panel.border = element_rect(color = "black", fill=NA),
-                         axis.text = element_text(color = "black"),
-                         axis.text.x = element_text(angle = 0,hjust=0.5,vjust = 0.5, size = 16),
-                         axis.text.y = element_text(size = 16),
-                         axis.title = element_text(size = 18))
-}
-
 log2_to_linear <- function(df,prior.count){
-  library(dplyr)
-  library(tibble)
+  # library(dplyr)
+  # library(tibble)
 
   #from manual pages is.interger()
   is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
@@ -91,8 +77,8 @@ voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
                        trend=FALSE, logCPM=FALSE,
                        normalization=FALSE,
                        GOI=NULL){
-  library(edgeR)
-  library(limma)
+  # library(edgeR)
+  # library(limma)
 
   ##ensure correct order
   expnData <- expnData[,match(rownames(clinData), colnames(expnData))]
@@ -206,8 +192,8 @@ voom_DE <- function(expnData, pheno,ref,percent,
   #normalization is for an extra method of normalization such as quantile if necessary. should be either FALSE or "qt" so far
   #GOI is a character vector of genes (or numeric vector of row indices) of interest to subset at the end. keeps BH adjuted p-values more accurate.
 
-  library(limma)
-  library(edgeR)
+  # library(limma)
+  # library(edgeR)
 
   expnData <- expnData[,match(names(pheno), colnames(expnData))] ##ensure correct order
 
@@ -315,12 +301,12 @@ gene_protein_anno <- function(df,gene.name.col="gene",
   #gene.name.col is if any dataframe has an alternative column name for gene symbols (eg BCL2,TP53)
   #gene.name.col CANNOT be gene_id.
 
-  library(dplyr)
-  library(stringr)
-  library(tidyr)
-  suppressPackageStartupMessages(library(rDGIdb))
-  library(biomaRt)
-  options(stringsAsFactors = FALSE)
+  # library(dplyr)
+  # library(stringr)
+  # library(tidyr)
+  # suppressPackageStartupMessages(library(rDGIdb))
+  # library(biomaRt)
+  # options(stringsAsFactors = FALSE)
 
   #Function for mining certain keywords from the compartemnts data
   matchCompartment <- function(protein, gene, geneStableID, ref.df, keywords.regex){
@@ -619,9 +605,9 @@ twoGroups_DEGs <- function(expnData, clinData, col, ref,
   #Add.Anno.Col is to add one or two more columns for heatmap annotation color bars
   #Anno.Cols is to use entirely custom annotation cols.
 
-  library(magrittr)
-  library(gtools)
-  library(tibble)
+  # library(magrittr)
+  # library(gtools)
+  # library(tibble)
 
   #remove unknown categories from the datasets since only want yes/no or 0/1 groups
   rmUnknowns <- function(clinData, cols){
@@ -806,7 +792,7 @@ twoGroups_DEGs <- function(expnData, clinData, col, ref,
 
 
 extract_DEGs <- function(twoGroups_DEGs.res, filter=FALSE,goi=NULL,anno=FALSE, geneLevel=FALSE){
-  library(dplyr)
+  # library(dplyr)
 
   #function to extract gene level annotation infromation. Added 3/22/19
   extract_anno_subset <- function(extract_DEGs.res){
@@ -879,7 +865,7 @@ extract_PCA <- function(twoGroups_DEGs.res){
 }
 
 extract_N.DE_NormFact <- function(twoGroups_DEGs.res){
-  library(magrittr)
+  # library(magrittr)
   # cytogenetics <- names(twoGroups_DEGs.res)
 
   N.DE <- nrow(twoGroups_DEGs.res$DE$DE)

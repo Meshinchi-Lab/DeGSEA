@@ -111,7 +111,7 @@ GroupIDs <- function(clinData, col){
 
 
 phenoVectors_MultipleGroups <- function(listofgoupsIDs){
-  library(magrittr)
+  # library(magrittr)
   #listofgoupsIDs contains a list with each item containing the IDs for each factor level.
   #See GroupIDs function - this produced the input called  "listofgroupIDs"
   group <- names(listofgoupsIDs)
@@ -129,7 +129,7 @@ phenoVectors_MultipleGroups <- function(listofgoupsIDs){
 }
 
 phenoVectors <- function(groupA, groupB){
-  library(magrittr)
+  # library(magrittr)
   #groupA and GroupB are character vectors with the patients IDs in each group
   g1 <- as.character(substitute(groupA))
   g2 <- as.character(substitute(groupB))
@@ -231,7 +231,7 @@ splitFusions <- function(FusionCol,regex){
   #regex is the fusion of interest
   #use with rowwise in dplyr
 
-  library(stringr)
+  # library(stringr)
 
   fusions <- unlist(str_split(FusionCol, "; |, "))
   fus <- unique(grep(regex, fusions, value = TRUE, ignore.case = TRUE))

@@ -23,9 +23,9 @@ plotPCoA <- function(expnData,phenovector, title="",colorCodes=NULL, geneList=NU
   #expnData is normalized counts, typically log2 scale.
 
   #factor is the name of the factor column
-  suppressPackageStartupMessages(library(vegan))
-  suppressPackageStartupMessages(library(ggplot2))
-  suppressPackageStartupMessages(library(dplyr))
+  # suppressPackageStartupMessages(library(vegan))
+  # suppressPackageStartupMessages(library(ggplot2))
+  # suppressPackageStartupMessages(library(dplyr))
 
   #Ensure correct order of patients in both datasets
   expnData <- expnData[ ,intersect(names(phenovector), colnames(expnData))]
@@ -95,7 +95,7 @@ plotPCoA <- function(expnData,phenovector, title="",colorCodes=NULL, geneList=NU
 #Want to return the whole scores matrix so can examine 3d pca plots.
 plotPCA.DESeq.mod <- function(object, intgroup="condition", ntop=500, returnData=FALSE, PC3=FALSE)
 {
-  library(matrixStats)
+  # library(matrixStats)
   # calculate the variance for each gene
   rv <- rowVars(assay(object))
 
@@ -170,8 +170,8 @@ plotPCA.DESeq.mod <- function(object, intgroup="condition", ntop=500, returnData
 PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
                 ntop=500,PC3=FALSE, GOI=NULL){
 
-  suppressPackageStartupMessages(library(DESeq2))
-  library(ggplot2)
+  # suppressPackageStartupMessages(library(DESeq2))
+  # library(ggplot2)
   #expnData is the raw counts (not normalized) has patient IDs as colnames and genes as rownames.
 
   # countData <- expnData[,match(names(phenovector), colnames(expnData))]
@@ -248,8 +248,8 @@ PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
 
 pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE,
                        single.col.outline=FALSE, toHighlight=NULL, ellipse=FALSE){
-  library(tibble)
-  library(dplyr)
+  # library(tibble)
+  # library(dplyr)
   #expn data is log2, normalized counts
   #CDE has patients as rownames.
   #fillCol == character string of column name for fill colors
