@@ -246,6 +246,25 @@ PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
 }
 
 
+#' Custom PCA plot
+#'
+#' @param expnData expn data is log2, normalized counts
+#' @param CDE dataframe - has patients as rownames
+#' @param fillCol character string of column name for fill colors
+#' @param colorCol character string of column name for border colors
+#' @param colorCode an option named vector of colors
+#' @param PC3 boolean to generate PC1 vs PC3 plot
+#' @param single.col.outline boolean whether to susbet to dataframe for the border color
+#' @param toHighlight if single.col.outline is true, Gives the factor to highlight with borders from the colorColumn
+#' @param ellipse boolean to draw an ellipse based on fillCol column
+#'
+#' @returns list of plots
+#' @export
+#'
+#' @examples
+#' mat <- matrix(rnorm(10), nrow = 10, ncol = 10)
+#' metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
+#' pca_custom(mat, metadata, colorCol = "mutation")
 pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE,
                        single.col.outline=FALSE, toHighlight=NULL, ellipse=FALSE){
   # library(tibble)

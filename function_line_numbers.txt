@@ -1,0 +1,143 @@
+R/CDE_Cleaning_Utility_Functions.r	17	mergeMolCols <- function(col1,col2){
+R/CDE_Cleaning_Utility_Functions.r	40	collapseDuplicates <- function(df,ID.column,duplicate){
+R/CDE_Cleaning_Utility_Functions.r	81	collapseRows <- function(col, uniq=FALSE){
+R/CDE_Cleaning_Utility_Functions.r	91	GroupIDs <- function(clinData, col){
+R/CDE_Cleaning_Utility_Functions.r	113	phenoVectors_MultipleGroups <- function(listofgoupsIDs){
+R/CDE_Cleaning_Utility_Functions.r	131	phenoVectors <- function(groupA, groupB){
+R/CDE_Cleaning_Utility_Functions.r	145	pheno_bars <- function(CDE,IDCol,cols){
+R/CDE_Cleaning_Utility_Functions.r	150	  replace_yes <- function(col,name){
+R/CDE_Cleaning_Utility_Functions.r	182	removeDups <- function(col.rowwise){
+R/CDE_Cleaning_Utility_Functions.r	194	removeDups <- function(col.rowwise){
+R/CDE_Cleaning_Utility_Functions.r	206	createMultiCols <- function(col,split=FALSE,suffix){
+R/CDE_Cleaning_Utility_Functions.r	229	splitFusions <- function(FusionCol,regex){
+R/CDE_Cleaning_Utility_Functions.r	277	combineFusions <- function(df, regex, identifier){
+R/CDE_Cleaning_Utility_Functions.r	296	# pheno_bars <- function(CDE,IDCol,cols){
+R/CDE_Cleaning_Utility_Functions.r	303	#   replace_yes <- function(col,name){
+R/rmDupGenes_Function.r	8	getIDmap <- function(GTF,type="transcript"){
+R/rmDupGenes_Function.r	32	RPKM_to_TPM <- function(RPKM){
+R/rmDupGenes_Function.r	39	rmDups <- function(count.matrix, ID.map, matrix.class=TRUE,rowname.GeneSym=TRUE){
+R/rmDupGenes_Function.r	109	  tokeep <- function(dup,vars){
+R/rmDupGenes_Function.r	139	filterGs <- function(expnMatrix, cutoff,log2=FALSE){
+R/rmDupGenes_Function.r	155	kallisto_rmDups <- function(kallisto.df, geneIDmap){
+R/rmDupGenes_Function.r	239	# filterDups <- function(df, geneCol){
+R/Heatmaps_Function.r	8	matchMatrix <- function(annodf, ExpnMatrix){
+R/Heatmaps_Function.r	26	colorVectors_asList <- function(df){
+R/Heatmaps_Function.r	64	colorCodes_aheatmap <- function(df,random=FALSE){
+R/Heatmaps_Function.r	122	dge_dendrograms <- function(expnData, pheno, method,
+R/Heatmaps_Function.r	205	dge_dends_scale <- function(df, pheno, genelist, method){
+R/Heatmaps_Function.r	250	colorDends <- function(hclustObject, colorCodes, group, textsize){
+R/Heatmaps_Function.r	293	colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
+R/Heatmaps_Function.r	342	basicHeatmap <- function(ExpnMatrix, geneDend, sampleDend, colors,title){
+R/Heatmaps_Function.r	402	annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColors,main=NULL){
+R/Heatmaps_Function.r	465	create_HA_Labs_Hmap <- function(expn,geneList, goi=NULL,cc=NULL, CDE, cols,
+R/Heatmaps_Function.r	572	ComplexHmap <- function(mat, name="z-scores",
+R/Heatmaps_Function.r	728	quickPheatmap <- function(expn,geneList, clinData,
+R/clusterAnalysis_Function.r	22	plotPCoA <- function(expnData,phenovector, title="",colorCodes=NULL, geneList=NULL, size=3){
+R/clusterAnalysis_Function.r	74	  # find_hull <- function(df) df[chull(df$MDS1, df$MDS2), ]
+R/clusterAnalysis_Function.r	96	plotPCA.DESeq.mod <- function(object, intgroup="condition", ntop=500, returnData=FALSE, PC3=FALSE)
+R/clusterAnalysis_Function.r	170	PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
+R/clusterAnalysis_Function.r	249	pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE,
+R/clusterAnalysis_Function.r	273	  pca.plot_function <- function(scores,PC){
+R/Survplot_Functions_2018.10.24.r	7	SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
+R/Survplot_Functions_2018.10.24.r	74	SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, colors,pval=NULL,max.year=NULL){
+R/Survplot_Functions_2018.10.24.r	191	risk.table <- function(survFit.obj, f.levels=NULL,
+R/Survplot_Functions_2018.10.24.r	277	KM.plots <- function(df, group_vars=NULL, type="OS",
+R/Survplot_Functions_2018.10.24.r	322	  colorcodes <- function(df,covariate){
+R/Survplot_Functions_2018.10.24.r	402	  pvalue <- function(survdiff.res){
+R/Survplot_Functions_2018.10.24.r	409	  groupSize <- function(survdiff.res){paste0("N = ", sum(survdiff.res$n))}
+R/Survplot_Functions_2018.10.24.r	484	saveMultiPlots <- function(KM.plots.res,w=8,h=5){
+R/Survplot_Functions_2018.10.24.r	489	  covar <- function(i){
+R/Survplot_Functions_2018.10.24.r	494	  name <- function(i){paste(KM.plots.res[[1]][i],covar(i),col,"KMplot.tiff", sep="_")}
+R/Survplot_Functions_2018.10.24.r	512	weibull.HR <- function(weibull.mod){
+R/Survplot_Functions_2018.10.24.r	526	parametricSumaryTable <- function(survreg.res){
+R/Survplot_Functions_2018.10.24.r	551	coxSummaryTable <- function(coxph.res,Colname="Group"){
+R/Survplot_Functions_2018.10.24.r	572	calc_KMcurve_pvalues <- function(survdiff, digits=3){
+R/Survplot_Functions_2018.10.24.r	585	outcome_table <- function(fit, time=5, pvalues=NULL){
+R/Survplot_Functions_2018.10.24.r	644	ggsurv.m <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
+R/Volcano_MA_Plot_Function.r	9	volcano_plot <- function(twoGroups_DEGs.res, cut.off=2.5, label.offset=0.5){
+R/Volcano_MA_Plot_Function.r	75	MA_plot <- function(twoGroups_DEGs.res, cut.off=2.5, label.offset=0.5){
+R/GAGE_GSEA_GSVA_Function.r	12	gsva_DE <- function(gsva_matrix,clinData,col,p.value=0.001){
+R/GAGE_GSEA_GSVA_Function.r	54	GAGE_GSA <- function(df, type, geneset=NULL, ref=NULL,samp=NULL, min_size=15){
+R/GAGE_GSEA_GSVA_Function.r	154	gage_from_pipeline <- function(twoGroups_DEGs.res,type,geneset=NULL, method="voom",min_size=15,... ){
+R/GAGE_GSEA_GSVA_Function.r	200	write.gmt <- function(list_of_genesets,Description_list=NA, filename="gene_sets.gmt"){
+R/GAGE_GSEA_GSVA_Function.r	227	extract_core_genes <- function(gage_from_pipeline.res,direction="up", ret.genesets=FALSE){
+R/GAGE_GSEA_GSVA_Function.r	276	# GAGE.heatmap <- function(GAGE_GSA.res){
+R/DifferentialExpressionPipeline_01.07.19.r	16	getIDmap <- function(GTF){
+R/DifferentialExpressionPipeline_01.07.19.r	36	log2_to_linear <- function(df,prior.count){
+R/DifferentialExpressionPipeline_01.07.19.r	41	  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+R/DifferentialExpressionPipeline_01.07.19.r	59	collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
+R/DifferentialExpressionPipeline_01.07.19.r	76	voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
+R/DifferentialExpressionPipeline_01.07.19.r	182	voom_DE <- function(expnData, pheno,ref,percent,
+R/DifferentialExpressionPipeline_01.07.19.r	289	gene_protein_anno <- function(df,gene.name.col="gene",
+R/DifferentialExpressionPipeline_01.07.19.r	312	  matchCompartment <- function(protein, gene, geneStableID, ref.df, keywords.regex){
+R/DifferentialExpressionPipeline_01.07.19.r	591	twoGroups_DEGs <- function(expnData, clinData, col, ref,
+R/DifferentialExpressionPipeline_01.07.19.r	613	  rmUnknowns <- function(clinData, cols){
+R/DifferentialExpressionPipeline_01.07.19.r	794	extract_DEGs <- function(twoGroups_DEGs.res, filter=FALSE,goi=NULL,anno=FALSE, geneLevel=FALSE){
+R/DifferentialExpressionPipeline_01.07.19.r	798	  extract_anno_subset <- function(extract_DEGs.res){
+R/DifferentialExpressionPipeline_01.07.19.r	858	extract_MDS <- function(twoGroups_DEGs.res){
+R/DifferentialExpressionPipeline_01.07.19.r	863	extract_PCA <- function(twoGroups_DEGs.res){
+R/DifferentialExpressionPipeline_01.07.19.r	867	extract_N.DE_NormFact <- function(twoGroups_DEGs.res){
+R/CDE_Cleaning_Utility_Functions.r	27	}
+R/CDE_Cleaning_Utility_Functions.r	78	}
+R/CDE_Cleaning_Utility_Functions.r	88	}
+R/CDE_Cleaning_Utility_Functions.r	110	}
+R/CDE_Cleaning_Utility_Functions.r	129	}
+R/CDE_Cleaning_Utility_Functions.r	141	}
+R/CDE_Cleaning_Utility_Functions.r	179	}
+R/CDE_Cleaning_Utility_Functions.r	190	}
+R/CDE_Cleaning_Utility_Functions.r	202	}
+R/CDE_Cleaning_Utility_Functions.r	226	}
+R/CDE_Cleaning_Utility_Functions.r	272	}
+R/CDE_Cleaning_Utility_Functions.r	293	}
+R/rmDupGenes_Function.r	27	}
+R/rmDupGenes_Function.r	37	}
+R/rmDupGenes_Function.r	86	}
+R/rmDupGenes_Function.r	136	}
+R/rmDupGenes_Function.r	152	}
+R/rmDupGenes_Function.r	232	}
+R/Heatmaps_Function.r	24	}
+R/Heatmaps_Function.r	49	}
+R/Heatmaps_Function.r	100	}
+R/Heatmaps_Function.r	202	}
+R/Heatmaps_Function.r	247	}
+R/Heatmaps_Function.r	289	}
+R/Heatmaps_Function.r	338	}
+R/Heatmaps_Function.r	399	}
+R/Heatmaps_Function.r	446	}
+R/Heatmaps_Function.r	548	}
+R/Heatmaps_Function.r	723	}
+R/Heatmaps_Function.r	794	}
+R/clusterAnalysis_Function.r	91	}
+R/clusterAnalysis_Function.r	149	}
+R/clusterAnalysis_Function.r	246	}
+R/clusterAnalysis_Function.r	339	}
+R/Survplot_Functions_2018.10.24.r	70	}
+R/Survplot_Functions_2018.10.24.r	187	}
+R/Survplot_Functions_2018.10.24.r	273	}
+R/Survplot_Functions_2018.10.24.r	480	}
+R/Survplot_Functions_2018.10.24.r	506	}
+R/Survplot_Functions_2018.10.24.r	521	}
+R/Survplot_Functions_2018.10.24.r	547	}
+R/Survplot_Functions_2018.10.24.r	566	}
+R/Survplot_Functions_2018.10.24.r	578	}
+R/Survplot_Functions_2018.10.24.r	630	}
+R/Survplot_Functions_2018.10.24.r	699	}
+R/Volcano_MA_Plot_Function.r	71	}
+R/Volcano_MA_Plot_Function.r	113	}
+R/GAGE_GSEA_GSVA_Function.r	51	}
+R/GAGE_GSEA_GSVA_Function.r	151	}
+R/GAGE_GSEA_GSVA_Function.r	183	}
+R/GAGE_GSEA_GSVA_Function.r	197	}
+R/GAGE_GSEA_GSVA_Function.r	223	}
+R/GAGE_GSEA_GSVA_Function.r	272	}
+R/DifferentialExpressionPipeline_01.07.19.r	33	}
+R/DifferentialExpressionPipeline_01.07.19.r	55	}
+R/DifferentialExpressionPipeline_01.07.19.r	73	}
+R/DifferentialExpressionPipeline_01.07.19.r	159	}
+R/DifferentialExpressionPipeline_01.07.19.r	270	}
+R/DifferentialExpressionPipeline_01.07.19.r	562	}
+R/DifferentialExpressionPipeline_01.07.19.r	785	}
+R/DifferentialExpressionPipeline_01.07.19.r	855	}
+R/DifferentialExpressionPipeline_01.07.19.r	860	}
+R/DifferentialExpressionPipeline_01.07.19.r	865	}
+R/DifferentialExpressionPipeline_01.07.19.r	875	}

@@ -20,5 +20,7 @@ data.frame
 For each duplicate USI, collapse the columns' information so that it will be seperated by a semi-colon.
 }
 \examples{
-my_data <- data.frame(Sample=paste0("s",1:20), mutationA=sample(c("Yes","No"), size=20, replace=T), mutationB=sample(c("Yes","No"), size=20, replace=T))
+my_data <- data.frame(Sample=paste0("s",1:20), mutation=rep(c("Yes","No"), length.out=20))
+collapseDuplicates(my_data, ID.column = "Sample", duplicate=c("s2","s5"))
+
 }

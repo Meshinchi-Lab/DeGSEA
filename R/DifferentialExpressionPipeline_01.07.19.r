@@ -13,6 +13,16 @@
 # source("~/scripts/RNAseq_Analysis/DifferentialExpn_PathwayAnalysis/Heatmaps_Function.r")
 
 #Function to create a gene ID map for ensembl gene_id, and transcript_ids
+#' Create a gene ID map for ensembl gene_id, and transcript_ids
+#'
+#' @param GTF a gtf file
+#'
+#' @returns a dataframe
+#' @export
+#'
+#' @examples
+#' gtf <- data.frame(V3 = "transcript", V9 = "attr1 red; attr2 blue; attr green")
+#' getIDmap(gtf)
 getIDmap <- function(GTF){
   # library(dplyr)
   # library(tibble)
@@ -33,29 +43,19 @@ getIDmap <- function(GTF){
 }
 
 
-log2_to_linear <- function(df,prior.count){
-  # library(dplyr)
-  # library(tibble)
-
-  #from manual pages is.interger()
-  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
-
-  #want zero digits if its a whole number, or number of digits after the decimal
-  digits <- ifelse(is.wholenumber(prior.count), 0, nchar(gsub("0\\.", "", prior.count)))
-
-  df <- df %>%
-    as.data.frame() %>%
-    rownames_to_column("gene") %>%
-    mutate_if(is.numeric, function(x) 2^x) %>%
-    # mutate_if(is.numeric,
-    #           function(x) ifelse(x >= prior.count, x-prior.count, 0)) %>% #worked for the Gtex dataset. not so well here.
-    column_to_rownames("gene")
-
-   return(df)
-}
-
-
-#Function to collapse duplicate rows so that all information is retain and seperated by a semi-colon.
+#' Collapse duplicate rows so that all information is retain,optionally unique, and separated by a semi-colon.
+#'
+#' @param col colname
+#' @param uniq boolean
+#' @param split boolean
+#' @param sep delimiter
+#'
+#' @returns string vector
+#' @export
+#'
+#' @examples
+#' metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
+#' collapseRows(col = "mutation")
 collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
   #designed for dplyr so that "col" paramter is a vector of that column.
   #Similar to collapseDuplicates(), but for fewer columns, plus preselection of columns. Where are collapseDuplicates() you don't need to know the exact column names before hand.
@@ -72,7 +72,26 @@ collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
   return(collapsed)
 }
 
-#Voom DE with Batch effect in the Model
+
+
+#' Voom DE with Batch effect in the Model
+#'
+#' @param expnData gene counts matrix
+#' @param clinData dataframe - has patients as rownames
+#' @param col a vector of 2 column names for co-variate/batch effect variable
+#' @param percent percent of samples for expression threshold
+#' @param trend boolean limma trend
+#' @param logCPM boolean - true if input counts are already log2 CPM
+#' @param normalization boolean to run upper quantile norm
+#' @param GOI vector of gene names - genes of interest (GOI)
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' mat <- matrix(rnorm(10), nrow = 10, ncol = 10)
+#' metadata <- data.frame(mutation = rep("yes","no", length.out = 10), group=rep("A","B", each = 2))
+#' voom_DE_BE(mat, metadata, col = c("mutation","group"))
 voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
                        trend=FALSE, logCPM=FALSE,
                        normalization=FALSE,
@@ -791,6 +810,20 @@ twoGroups_DEGs <- function(expnData, clinData, col, ref,
 ####### Extraction methods to get items of interest. ############
 
 
+#' Title
+#'
+#' @param twoGroups_DEGs.res output of twoGroups_DEGs()
+#' @param filter boolean remove duplicate genes
+#' @param goi genes of interest
+#' @param anno boolean for gene annots
+#' @param geneLevel boolean for gene annots or transcript annots
+#'
+#' @returns dataframe
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
+#'
 extract_DEGs <- function(twoGroups_DEGs.res, filter=FALSE,goi=NULL,anno=FALSE, geneLevel=FALSE){
   # library(dplyr)
 
@@ -855,24 +888,24 @@ extract_DEGs <- function(twoGroups_DEGs.res, filter=FALSE,goi=NULL,anno=FALSE, g
 }
 
 
-extract_MDS <- function(twoGroups_DEGs.res){
-  twoGroups_DEGs.res$MDS$plot
-}
-
-
-extract_PCA <- function(twoGroups_DEGs.res){
-  twoGroups_DEGs.res$PCA$pca_plot
-}
-
-extract_N.DE_NormFact <- function(twoGroups_DEGs.res){
-  # library(magrittr)
-  # cytogenetics <- names(twoGroups_DEGs.res)
-
-  N.DE <- nrow(twoGroups_DEGs.res$DE$DE)
-  NormFactors <- range(twoGroups_DEGs.res$DE$NormFactors$norm.factors) %>% paste(., collapse="-")
-  N.DE_NormFactor <- cbind(N.DE, NormFactors)
-  return(N.DE_NormFactor)
-}
+# extract_MDS <- function(twoGroups_DEGs.res){
+#   twoGroups_DEGs.res$MDS$plot
+# }
+#
+#
+# extract_PCA <- function(twoGroups_DEGs.res){
+#   twoGroups_DEGs.res$PCA$pca_plot
+# }
+#
+# extract_N.DE_NormFact <- function(twoGroups_DEGs.res){
+#   # library(magrittr)
+#   # cytogenetics <- names(twoGroups_DEGs.res)
+#
+#   N.DE <- nrow(twoGroups_DEGs.res$DE$DE)
+#   NormFactors <- range(twoGroups_DEGs.res$DE$NormFactors$norm.factors) %>% paste(., collapse="-")
+#   N.DE_NormFactor <- cbind(N.DE, NormFactors)
+#   return(N.DE_NormFactor)
+# }
 
 
 

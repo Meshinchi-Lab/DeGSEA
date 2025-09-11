@@ -2,29 +2,6 @@
 #12/12/18
 #helper functions for cleaning the CDEs and using the fusion columns
 
-#' merge molecular annotations side-by-side from the clinical data elements
-#'
-#' @param col1 the unquoted column name
-#' @param col2 the unquoted column name
-#'
-#' @return data.frame
-#' @export
-#'
-#' @examples
-#' set.seed(1)
-#' my_data <- data.frame(mutationA=sample(c("Yes","No"), size=20, replace=T), mutationB=sample(c("Yes","No"), size=20, replace=T))
-#'
-mergeMolCols <- function(col1,col2){
-  #simple paste function to combine two columns and remove any trailing or preceding white space.
-  data <- paste(col1,col2, sep=" ") %>%
-    gsub("^ | $", "", .) %>%
-    sapply(., unique)
-
-  #change all empty strings
-  data[data==""] <- "Not evaluated"
-
-  return(data)
-}
 
 #' For each duplicate USI, collapse the columns' information so that it will be seperated by a semi-colon.
 #'
@@ -36,7 +13,9 @@ mergeMolCols <- function(col1,col2){
 #' @export
 #'
 #' @examples
-#' my_data <- data.frame(Sample=paste0("s",1:20), mutationA=sample(c("Yes","No"), size=20, replace=T), mutationB=sample(c("Yes","No"), size=20, replace=T))
+#' my_data <- data.frame(Sample=paste0("s",1:20), mutation=rep(c("Yes","No"), length.out=20))
+#' collapseDuplicates(my_data, ID.column = "Sample", duplicate=c("s2","s5"))
+#'
 collapseDuplicates <- function(df,ID.column,duplicate){
   #Purpose: for each duplicate USI, collapse the columns' information so that it will be seperated by a semi-colon.
   #This retains all information for each sample, but can remove duplicate USIs.
