@@ -9,20 +9,15 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Depends:
+    R (>= 4.0.0)
+biocViews:
 Imports: 
-    biomaRt,
-    dendextend,
-    DESeq2,
     dplyr,
-    edgeR,
-    GGally,
-    ggplot2,
-    limma,
-    magrittr,
-    matrixStats,
-    NMF,
     stringr,
     survival,
     tibble,
     tidyr,
-    vegan
+    GGally,
+    ggplot2,
+    magrittr
