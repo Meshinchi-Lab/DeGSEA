@@ -59,7 +59,7 @@ log2_to_linear <- function(df,prior.count){
 collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
   #designed for dplyr so that "col" paramter is a vector of that column.
   #Similar to collapseDuplicates(), but for fewer columns, plus preselection of columns. Where are collapseDuplicates() you don't need to know the exact column names before hand.
-  require(stringr)
+  # require(stringr)
 
   if (uniq){
     if(split){

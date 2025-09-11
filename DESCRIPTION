@@ -20,4 +20,8 @@ Imports:
     tidyr,
     GGally,
     ggplot2,
-    magrittr
+    magrittr,
+    grDevices,
+    graphics,
+    stats,
+    utils

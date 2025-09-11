@@ -254,7 +254,7 @@ colorDends <- function(hclustObject, colorCodes, group, textsize){
   #group is the character vector with groups status, one for each patient (patientIDs as names).  Usually called phenovector in my code.
   #textsize is a numeric vector of length 2 with size for 1) the labels of axes, and 2) patient IDs on leaves.
 
-  suppressPackageStartupMessages(require(dendextend))
+  # suppressPackageStartupMessages(require(dendextend))
 
 
   N <- length(group)
