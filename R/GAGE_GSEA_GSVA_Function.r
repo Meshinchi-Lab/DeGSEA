@@ -8,7 +8,19 @@
 
 
 
-#DE analysis with the gsva matrix.
+#
+#' DE analysis with the gsva matrix.
+#'
+#' @param gsva_matrix output scores from gsva
+#' @param clinData dataframe of clinical data with patients as rownames
+#' @param col covariate column name
+#' @param p.value p-value threshold
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 gsva_DE <- function(gsva_matrix,clinData,col,p.value=0.001){
   #clinData must be factor leveled!
 
@@ -51,20 +63,29 @@ gsva_DE <- function(gsva_matrix,clinData,col,p.value=0.001){
 }
 
 
+#' GAGE gene-set enrichment analysis
+#'
+#' @param df df has genes symbols as rownames and patients as columns with normalized expression data
+#' @param type type is either limma differential expression results (FC) or expression matrix of normalized counts (expn)
+#' @param geneset optional list gene-sets
+#' @param ref column numbers for reference samples
+#' @param samp column numbers for samples in condition of interest
+#' @param min_size min size of gene-sets
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 GAGE_GSA <- function(df, type, geneset=NULL, ref=NULL,samp=NULL, min_size=15){
   #df has genes symbols as rownames and patients as columns with normalized expression data
   #type is either limma differential expression results (FC) or expression matrix of normalized counts (expn)
-  # library(pathview)
-  # library(magrittr)
-  # library(gage)
-  # library(gageData)
 
 
   if(is.null(geneset)){
-    #Load the kegg human datasets
-    data("kegg.gs")
-    # data("go.sets.hs")
-    data("egSymb")
+    message(
+      'Load the kegg human datasets with data("kegg.gs") and data("go.sets.hs") and data("egSymb")'
+      )
 
     #create objects to hold the information from the datasets loaded above
     kg.hsa=kegg.gsets("hsa")
@@ -150,7 +171,23 @@ GAGE_GSA <- function(df, type, geneset=NULL, ref=NULL,samp=NULL, min_size=15){
   return(res)
 }
 
-#Wrapper Function to run GAGE GSEA on the output for the DEGs pipeline
+#
+
+
+#' Wrapper Function to run GAGE GSEA on the output for the DEGs pipeline
+#'
+#' @param twoGroups_DEGs.res output from twoGroups_DEGs()
+#' @param type type is either limma differential expression results (FC) or expression matrix of normalized counts (expn)
+#' @param geneset optional list gene-sets
+#' @param method voom or trend
+#' @param min_size min size of gene-sets
+#' @param ... others
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 gage_from_pipeline <- function(twoGroups_DEGs.res,type,geneset=NULL, method="voom",min_size=15,... ){
 
   if (type == "FC"){
@@ -186,6 +223,15 @@ gage_from_pipeline <- function(twoGroups_DEGs.res,type,geneset=NULL, method="voo
 ##Simple function to read in a .gmt file and return a list of pathways
 #https://github.com/arcolombo/junk/blob/5d39a5893bb7dd6328d587791b9735de14b2ff45/R/qusageArm.R
 #Directly from github. Cannot install the library.
+#' Read in a .gmt file and return a list of pathways
+#'
+#' @param file file path to gmt
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 read.gmt = function(file){
   if(!grepl("\\.gmt$",file)[1]){stop("Pathway information must be a .gmt file")}
   geneSetDB = readLines(file)                                ##read in the gmt file as a vector of lines
@@ -196,7 +242,19 @@ read.gmt = function(file){
   return(geneSetDB)
 }
 
-#Simply function to write custom list of gene-sets to gmt file format.
+#
+#' Simply function to write custom list of gene-sets to gmt file format.
+#'
+#' @param list_of_genesets a list of gene-sets
+#' @param Description_list a paired list of gene-set descriptions
+#' @param filename output filenames
+#'
+#' @returns nothing
+#' @export
+#'
+#'
+#' @examples
+#' ex <- c("TBD")
 write.gmt <- function(list_of_genesets,Description_list=NA, filename="gene_sets.gmt"){
 
   if(is.na(Description_list)){
@@ -339,83 +397,4 @@ extract_core_genes <- function(gage_from_pipeline.res,direction="up", ret.genese
 #
 #
 # }
-
-
-
-
-############# 11/8/18 for Hallmark sets ###########
-
-# gmt <- read.gmt(file="~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/hallmark_MdbSig/h.all.v6.2.symbols.gmt")
-# head(gmt)
-# length(gmt)
-#
-# idx <- sapply(gmt, function(x) length(x) > 15 & length(x) < 500)
-#
-# gmt <- gmt[idx]
-# length(gmt)
-
-# saveRDS(gmt, "~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/hallmark_MdbSig/h.all.v6.2.symbols.RDS")
-
-
-############ 7/13/18 create GO gene sets
-# p <- "~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/"
-# files <- paste0(p, dir(pattern = "c5.+symbols.gmt", path=p))
-
-
-# GMTs <- lapply(files, read.gmt)
-# names(GMTs) <- c("c5.bp","c5.cc", "c5.mf")
-# summary(GMTs)
-# saveRDS(GMTs, file="~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/c5_list_v6.1.symbols.RDS")
-
-# idxs <- lapply(GMTs, function(x) sapply(x, function(y) length(y) >= 50 & length(y) <= 300))
-# names(idxs)
-#
-# GMTs.Sub <- lapply(names(GMTs), function(i) GMTs[[i]][idxs[[i]]])
-# names(GMTs.Sub) <- names(GMTs)
-# summary(GMTs.Sub)
-
-# saveRDS(GMTs.Sub, file="~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/c5_list_SetSize_GE.50_LE.300_v6.1.symbols.RDS")
-
-# sapply(GMTs$c5.bp, function(y) length(y) >= 50 & length(y) <= 300)
-
-
-############ 10/05/18 create GO gene sets
-
-# c3 <- read.gmt(file="~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/c3.tft.v6.2.symbols.gmt")
-# length(c3)
-# idx <- sapply(c3, function(x) length(x) > 20 & length(x) < 300) #546
-# c3 <- c3[idx]
-# length(c3)
-# head(c3)
-# saveRDS(c3, "~/RNA_seq_Analysis/0000.00.01_GSEA_geneSets_gmt/c3.tft.v6.2.symbols.RDS")
-
-
-
-
-#################### Example useage
-# library(qusage)
-# files <- dir(pattern = "symbols.gmt", path="GAGE/") %>% paste("GAGE/", ., sep="")
-# GMTs <- lapply(files, read.gmt)
-
-
-# all_genes <- NULL
-# for (gs in rownames(sigRes)){
-#   outname <-gsub("hsa[0-9]+ (\\w+)", "\\1", gs)
-#   genes <- geneset[[gs]]
-#   all_genes <- c(all_genes, genes)
-#
-#   if (length(genes) < 100){
-#     cex=0.8
-#   }else if(length(genes) > 100 & length(genes) < 150){
-#     cex=0.5
-#   }else{
-#     cex=0.25
-#   }
-#
-#   geneData(genes=geneset[[gs]], exprs = df,
-#            ref=ref, samp=ref, txt=TRUE, heatmap = heatmap,outname = outname, cexRow=cex)
-# }
-
-
-
 

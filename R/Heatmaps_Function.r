@@ -5,24 +5,16 @@
 #purpose: to create a edgeR dge list given a vector of phenotypes, and a dataframe with counts.
 #Also create colored dendrograms and heatmaps.
 
-matchMatrix <- function(annodf, ExpnMatrix){
-  #annodf is a cleaned CDE subset with patient IDs are rownames
-  #expn matrix has patient IDs as colnames, genes as rownames
 
-  #match the names in the expn matrix to names in a phenovector to ensure proper matching/order
-  annoCol <- annodf[match(colnames(ExpnMatrix), rownames(annodf)),]
-
-  # #find columns that are character class and update with "Not Available". keep numeric class as NA
-  characterCols <- sapply(annoCol, class) == "character"
-  idx <- is.na(annoCol[,characterCols])[,1]
-  annoCol[idx,characterCols] <- "Unknown"
-
-  #Set the rownames to columnames in expnmatrix to remove NAs from rownames
-  rownames(annoCol) <- colnames(ExpnMatrix)
-
-  return(annoCol)
-}
-
+#' Create a list of color codes for all columns in a datafram
+#'
+#' @param df df of cleaned clinical characteristics. patient IDs as rownames
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 colorVectors_asList <- function(df){
   # library(RColorBrewer)
   #df of cleaned clinical characteristics. patient IDs as rownames
@@ -297,7 +289,7 @@ colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
   #branchCol is a vector of length K, with the colors for the branches.
   #color codes is a named character vector for the known groups (eg c(pos="red, neg="blue)) for the leaves.
 
-  if(class(dendrogram) == "list"){
+  if(inherits(dendrogram, "list")){
     d <- dendrogram
     dend <- as.dendrogram(d$samp.c1)
   }else{
