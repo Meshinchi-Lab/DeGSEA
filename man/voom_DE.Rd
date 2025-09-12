@@ -14,7 +14,9 @@ voom_DE(
   normalization = FALSE,
   GOI = NULL,
   eBayesRobust = FALSE,
-  lmMethod = "ls"
+  lmMethod = "ls",
+  exclude_samples = NULL,
+  scale_data = FALSE
 )
 }
 \arguments{

@@ -11,7 +11,6 @@ twoGroups_DEGs(
   ref,
   percent.cutoff = 0.05,
   logCPM = FALSE,
-  BM = FALSE,
   GOI = NULL,
   anno = TRUE,
   ids2symbols = NULL,
@@ -19,13 +18,14 @@ twoGroups_DEGs(
   method = "ward.D2",
   Add.Anno.Col = NULL,
   Custom.Cols = NULL,
-  SkipPlots = FALSE
+  SkipPlots = FALSE,
+  BM = FALSE
 )
 }
 \arguments{
 \item{expnData}{a matrix or data frame with the raw counts. Patient IDs as colnames, genes as rownames}
 
-\item{clinData}{data.frame of clindata has patient IDs as rownames.}
+\item{clinData}{data.frame of clindata has sample_id as rownames. must have column 'sample_id'}
 
 \item{col}{a character string of the factor column of interest}
 
@@ -34,8 +34,6 @@ twoGroups_DEGs(
 \item{percent.cutoff}{the fraction (0-1 numberic) of AML samples to include when setting an expression threshold. eg 5\% of AMLs, percent=0.05.}
 
 \item{logCPM}{boolean whether use logCPM values}
-
-\item{BM}{boolean whether to compare group to normal bone marrows}
 
 \item{GOI}{a character vector of genes (or numeric vector of row indices) of interest to subset at the end. keeps BH adjuted p-values more accurate.}
 
@@ -52,6 +50,8 @@ twoGroups_DEGs(
 \item{Custom.Cols}{use entirely custom annotation cols}
 
 \item{SkipPlots}{boolean whether to generate PCA, MDS, and Heatmaps}
+
+\item{BM}{boolean whether to compare group to normal bone marrows}
 }
 \value{
 list
