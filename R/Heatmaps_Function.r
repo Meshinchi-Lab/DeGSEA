@@ -430,7 +430,7 @@ annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColor
              breaks = 0,
              treeheight = 25,
              fontsize = 15,
-             gp = gpar(cex=1.25,fontsize=20),
+             gp = grid::gpar(cex=1.25,fontsize=20),
              main=main)
   # par(mar=c(5,4,4,100))
 
@@ -487,8 +487,8 @@ create_HA_Labs_Hmap <- function(expn,geneList,
 
     #legend graphical parameters
     params <- list(show_legend=TRUE,
-                  labels_gp= gpar(fontsize=12),
-                  title_gp= gpar(fontsize=16),
+                  labels_gp= grid::gpar(fontsize=12),
+                  title_gp= grid::gpar(fontsize=16),
                   nrow = 6, ncol=3,
                   by_row=TRUE)
 
@@ -512,7 +512,7 @@ create_HA_Labs_Hmap <- function(expn,geneList,
                                    gap=unit(1,"mm"),
                                    border = T,
                                    show_annotation_name = TRUE,
-                                   annotation_name_gp=gpar(fontsize=12),
+                                   annotation_name_gp=grid::gpar(fontsize=12),
                                    annotation_name_offset=unit(1,"mm"),
                                    annotation_name_side="left",
                                    annotation_height=unit(colorbar.height, "cm"),
@@ -532,7 +532,7 @@ create_HA_Labs_Hmap <- function(expn,geneList,
                                              which="row",
                                              link_width=unit(1, "mm")),
                             width= unit(1, "mm") + max_text_width(labels),
-                            gp=gpar(fontsize=4))
+                            gp=grid::gpar(fontsize=4))
 
       res[["geneLabels"]] <-  labs
     }
@@ -610,7 +610,7 @@ ComplexHmap <- function(mat, name="z-scores",
        title_position="leftcenter",
        legend_width=unit(5,"cm"),
        legend_height=unit(5,"cm"),
-       title_gp=gpar(fontsize=10,
+       title_gp=grid::gpar(fontsize=10,
                      fontface="bold"))
 
   if(is.null(dge_dendrograms.res)){
@@ -627,13 +627,13 @@ ComplexHmap <- function(mat, name="z-scores",
                     heatmap_legend_param=params,
                     row_title="Genes",
                     row_title_side="left",
-                    row_title_gp=gpar(fontsize=15, fontface="bold"),
+                    row_title_gp=grid::gpar(fontsize=15, fontface="bold"),
                     show_row_names=FALSE,
-                    row_names_gp=gpar(fontsize=3),
+                    row_names_gp=grid::gpar(fontsize=3),
 
                     column_title="",
                     column_title_side="top",
-                    column_title_gp=gpar(fontsize=15, fontface="bold"),
+                    column_title_gp=grid::gpar(fontsize=15, fontface="bold"),
                     column_title_rot=0,
                     show_column_names=FALSE,
 
@@ -684,14 +684,14 @@ ComplexHmap <- function(mat, name="z-scores",
                     heatmap_legend_param=params,
                     row_title="Genes",
                     row_title_side="left",
-                    row_title_gp=gpar(fontsize=15,
+                    row_title_gp=grid::gpar(fontsize=15,
                                       fontface="bold"),
                     show_row_names=FALSE,
-                    row_names_gp=gpar(fontsize=3),
+                    row_names_gp=grid::gpar(fontsize=3),
 
                     column_title="",
                     column_title_side="top",
-                    column_title_gp=gpar(fontsize=15,
+                    column_title_gp=grid::gpar(fontsize=15,
                                          fontface="bold"),
                     column_title_rot=0,
                     show_column_names=FALSE,
