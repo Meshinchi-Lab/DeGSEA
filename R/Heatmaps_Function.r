@@ -134,6 +134,8 @@ dge_dendrograms <- function(expnData, pheno, method,
 
   if( ! is.null(exclude_samples)){
     #updated on 10/11/17 to add AML samples CPM cutoff before calc. norm factors.
+    # example: selected_samps = "BM[0-9]|R[O0][0-9]"
+    # selected_samps <- ! grepl(exclude_samples, colnames(expnData))
     selected_samps <- ! grepl(exclude_samples, colnames(expnData))
   } else {
     selected_samps <- colnames(expnData)

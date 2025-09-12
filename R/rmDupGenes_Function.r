@@ -4,29 +4,6 @@
 
 #Purpose: To remove duplicate genes from a expression matrix. allowing for genes to be set as row names.
 
-
-getIDmap <- function(GTF,type="transcript"){
-  #GTF is a dataframe from read.delim(gtf_file)
-  #type is either transcript or gene
-  # library(dplyr)
-  # library(tibble)
-  options(stringsAsFactors = FALSE)
-
-  #standard ensembl GTF format and gencode GTF.
-  df <- GTF %>%
-    filter(grepl(type, V3)) %>%
-    dplyr::pull(V9) %>% #use pull() to create vector from a single column
-    str_split(., pattern = "; ") %>%
-    lapply(., function(x) t(str_split(x, pattern = " ", simplify = TRUE))) %>%
-    sapply(.,  function(x) set_colnames(x, value = x[1,])[-1,]) %>% #bapply ?
-    sapply(., function(x) data.frame(as.list(x))) %>%
-    bind_rows(.) %>%
-    mutate(across(everything(), ~gsub("\"","",.x)))
-
-  return(df)
-}
-
-
 #
 # Based on https://groups.google.com/forum/#!topic/rsem-users/W9RQrZIOzA4
 

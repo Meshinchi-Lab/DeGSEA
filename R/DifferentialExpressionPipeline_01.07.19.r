@@ -8,10 +8,6 @@
 #Heatmaps have option for additional color bars
 
 
-
-#For the Heatmaps
-# source("~/scripts/RNAseq_Analysis/DifferentialExpn_PathwayAnalysis/Heatmaps_Function.r")
-
 #Function to create a gene ID map for ensembl gene_id, and transcript_ids
 #' Create a gene ID map for ensembl gene_id, and transcript_ids
 #'
@@ -24,20 +20,16 @@
 #' gtf <- data.frame(V3 = "transcript", V9 = "attr1 red; attr2 blue; attr green")
 #' getIDmap(gtf)
 getIDmap <- function(GTF){
-  # library(dplyr)
-  # library(tibble)
-  # options(stringsAsFactors = FALSE)
-
   #standard ensembl GTF format and gencode GTF.
   tx <- GTF %>%
-    filter(grepl("transcript", V3)) %>%
+    dplyr::filter(grepl("transcript", V3)) %>%
     dplyr::select(V9) %>%
     unlist(.) %>%
     str_split(., pattern = "; ") %>%
     lapply(., function(x) t(str_split(x, pattern = " ", simplify = TRUE))) %>%
     sapply(.,  function(x) set_colnames(x, value = x[1,])[-1,]) %>%
     sapply(., function(x) data.frame(as.list(x))) %>%
-    bind_rows(.)
+    dplyr::bind_rows(.)
 
   return(tx)
 }
@@ -59,7 +51,6 @@ getIDmap <- function(GTF){
 collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
   #designed for dplyr so that "col" paramter is a vector of that column.
   #Similar to collapseDuplicates(), but for fewer columns, plus preselection of columns. Where are collapseDuplicates() you don't need to know the exact column names before hand.
-  # require(stringr)
 
   if (uniq){
     if(split){
@@ -95,7 +86,7 @@ collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
 voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
                        trend=FALSE, logCPM=FALSE,
                        normalization=FALSE,
-                       GOI=NULL){
+                       GOI=NULL, exclude_samples = NULL, scale_data = FALSE){
   # library(edgeR)
   # library(limma)
 
@@ -108,17 +99,25 @@ voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
   }
 
   #NOTE ClinData MUST BE already factor  leveled!
-  dge <- DGEList(counts = expnData, samples = clinData[,col])
+  dge <- edgeR::DGEList(counts = expnData, samples = clinData[,col])
+
+  if( ! is.null(exclude_samples)){
+    #updated on 10/11/17 to add AML samples CPM cutoff before calc. norm factors.
+    # example: selected_samps = "BM[0-9]|R[O0][0-9]"
+    # selected_samps <- ! grepl(exclude_samples, colnames(expnData))
+    # AML <- ! grepl("BM[0-9]|R[O0][0-9]", colnames(expnData))
+    # AMLsamples <- sum(AML)
+    selected_samps <- ! grepl(exclude_samples, colnames(expnData))
+  } else {
+    selected_samps <- colnames(expnData)
+  }
 
 
   #remove low count genes. This is to allow for 2/3 samples must have 1 cpm. Since 3 is the minimum # of samples I will allow for DE analysis.
-  AML <- ! grepl("BM[0-9]|R[O0][0-9]", colnames(expnData))
-  AMLsamples <- sum(AML)
-  #X% of AML samples has cpm of at least 1 for a gene
-  keep.dge <- rowSums(cpm(dge)[,AML] >= 1) >= max(2,(percent*AMLsamples))
+  N <- ncol(expnData[,selected_samps])
+  keep.dge <- rowSums(edgeR::cpm(dge)[,selected_samps] >= 1) >= max(2,(percent*N))
   dge <- dge[keep.dge,] #subset for those genes with cmp >= 1 per gene in AML samples
-  dge <- calcNormFactors(dge) #Do TMM normalization
-
+  dge <- edgeR::calcNormFactors(dge) #Do TMM normalization
 
   #Create a design and contrasts with  the groups to compare and the co-variate/batch effect variable
   #since the columns in dge$samples dataframe are already factor leveled - the ref is in the first column in the design
@@ -128,7 +127,7 @@ voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
 
 
   #contrast is the comparison-referenceGroup, or Pos-Neg, or Mut-WT
-  cont.matrix <- makeContrasts(contrasts = paste(c("Comparitor","Ref"),collapse = "-"),
+  cont.matrix <- limma::makeContrasts(contrasts = paste(c("Comparitor","Ref"),collapse = "-"),
                                levels = design)
 
 
@@ -141,38 +140,38 @@ voom_DE_BE <- function(expnData,clinData,col,percent=0.05,
 
 
   if (logCPM){
-    dge.norm <- cpm(dge, log=TRUE, prior.count = 1) #log2 + 1 CPM transformatio for normalization for sample to sample comparisons.
-    NormFactors <- "TMMCPM"
+    dge.norm <- edgeR::cpm(dge, log=TRUE, prior.count = 1) #log2 + 1 CPM transformatio for normalization for sample to sample comparisons.
+    norm_method <- "TMMCPM"
 
   }else if (all(!logCPM & !normalization)){
-    dge.norm <- voom(dge, design, plot = TRUE) #can I use voom transformed values like CPM? yes
-    NormFactors <- "Voom"  #voom transformed counts for sample to sample comparisons.
+    dge.norm <- limma::voom(dge, design, plot = TRUE) #can I use voom transformed values like CPM? yes
+    norm_method <- "Voom"  #voom transformed counts for sample to sample comparisons.
 
   }else if(all(!logCPM & normalization=="qt")){
-    dge.norm <- voom(dge, design, plot = FALSE, normalize.method = "quantile")
-    NormFactors <- "Voom.quantile" #voom and quantilte normalized counts for sample to sample comparisons.
+    dge.norm <- limma::voom(dge, design, plot = FALSE, normalize.method = "quantile")
+    norm_method <- "Voom.quantile" #voom and quantilte normalized counts for sample to sample comparisons.
   }
 
-  print(NormFactors) #to confirm which type of DE is performed, trend or voom
+  print(norm_method) #to confirm which type of DE is performed, trend or voom
 
   #fit the linear model.
-  fit <- lmFit(dge.norm, design)
-  fit <- contrasts.fit(fit, contrasts = cont.matrix)
+  fit <- limma::lmFit(dge.norm, design)
+  fit <- limma::contrasts.fit(fit, contrasts = cont.matrix)
 
   #compute moderated t-statistics using empirical bayes moderation.
   if(all(trend & logCPM)){ #only use limma trend method with CPM values, as per manual.
-    fit2 <- eBayes(fit,trend = trend)[GOI,]
+    fit2 <- limma::eBayes(fit,trend = trend)[GOI,]
   }else{
-    fit2 <- eBayes(fit)[GOI,]
+    fit2 <- limma::eBayes(fit)[GOI,]
   }
 
   # select differentially expressed genes.
-  DE <-topTable(fit2,adjust.method="BH",sort.by="P",
-                number=20000,p.value=0.05, lfc=1) #abs(logFC) >= 1 for all genes
+  DE <- limma::topTable(fit2,adjust.method="BH",sort.by="P",
+                  number=nrow(dge),
+                  p.value=0.05, lfc=1) #abs(logFC) >= 1 for all genes
 
   list <- list(dge.norm,fit2, DE)
-  names(list) <- c(NormFactors,"eBayesFit", "DE")
-
+  names(list) <- c(norm_method,"eBayesFit", "DE")
 
   return(list)
 }
