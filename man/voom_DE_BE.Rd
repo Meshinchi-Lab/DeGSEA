@@ -12,7 +12,9 @@ voom_DE_BE(
   trend = FALSE,
   logCPM = FALSE,
   normalization = FALSE,
-  GOI = NULL
+  GOI = NULL,
+  exclude_samples = NULL,
+  scale_data = FALSE
 )
 }
 \arguments{

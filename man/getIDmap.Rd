@@ -4,7 +4,7 @@
 \alias{getIDmap}
 \title{Create a gene ID map for ensembl gene_id, and transcript_ids}
 \usage{
-getIDmap(GTF, type = "transcript")
+getIDmap(GTF)
 }
 \arguments{
 \item{GTF}{a gtf file}
