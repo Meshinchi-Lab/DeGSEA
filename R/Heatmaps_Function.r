@@ -53,7 +53,7 @@ colorVectors_asList <- function(df){
 #'
 #' @examples
 #' ex <- c('TBD')
-colorCodes_aheatmap <- function(df,random=FALSE){
+colorCodes_aheatmap <- function(df,random=FALSE,AML_groups=FALSE){
   #df of cleaned clinical characteristics, such as annoDF,   patient IDs as rownames
   # library(RColorBrewer)
   cols <- colnames(df)
@@ -73,15 +73,20 @@ colorCodes_aheatmap <- function(df,random=FALSE){
     cc <- colors[1:n]
     names(cc) <- groups
 
-    #update based on common group names used in my heatmaps
-    if(any(grepl("Other$", groups))){
-      cc["Other"] <- "lightgrey"}
-    if(any(grepl("OtherAML", groups))){
-      cc["OtherAML"] <- "lightgrey"}
-    if(any(grepl("No$", groups))){
-      cc["No"] <- "lightgrey"}
-    if(any(grepl("^NBM$", groups))){
-      cc["NBM"] <- "black"}
+    if (AML_groups){
+      #update based on common group names used in my heatmaps
+      if(any(grepl("Other$", groups))){
+        cc["Other"] <- "lightgrey"}
+
+      if(any(grepl("OtherAML", groups))){
+        cc["OtherAML"] <- "lightgrey"}
+
+      if(any(grepl("No$", groups))){
+        cc["No"] <- "lightgrey"}
+
+      if(any(grepl("^NBM$", groups))){
+        cc["NBM"] <- "black"}
+    }
 
     #append color vector to list
     list[[col]] <- cc
@@ -113,7 +118,8 @@ colorCodes_aheatmap <- function(df,random=FALSE){
 #' ex <- c('TBD')
 dge_dendrograms <- function(expnData, pheno, method,
                             genelist=NULL,add.count=0.01, percent=0.01,
-                            filterTopGenes=FALSE, createDGE=TRUE,log=FALSE){
+                            filterTopGenes=FALSE, createDGE=TRUE,log=FALSE,
+                            exclude_samples = NULL, scale_data = FALSE){
   #df with count data, patient IDs are column names and rows are genes.
   #pheno is a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
   #genelist is a character vector with the genes of interest
@@ -126,20 +132,23 @@ dge_dendrograms <- function(expnData, pheno, method,
 
   expnData <- expnData[, intersect(names(pheno), colnames(expnData))] #ensure correct order, drop rows with nas just in case
 
+  if( ! is.null(exclude_samples)){
+    #updated on 10/11/17 to add AML samples CPM cutoff before calc. norm factors.
+    selected_samps <- ! grepl(exclude_samples, colnames(expnData))
+  } else {
+    selected_samps <- colnames(expnData)
+  }
 
   if(createDGE){
-    #updated on 10/11/17 to add AML samples CPM cutoff before calc. norm factors.
-    AML <- ! grepl("BM[0-9]|R[O0][0-9]", colnames(expnData))
-    AMLsamples <- ncol(expnData[,AML])
-
-    dge <- DGEList(counts = expnData)
+    dge <- edgeR::DGEList(counts = expnData)
     #updated on 7/26/18 - really only changes the heatmap coloring since the genes for each heatmap are already known to pass this threshold.
-    keep.dge <- rowSums(cpm(dge)[,AML] >= 1) >= max(2,(percent*AMLsamples)) #X% of AML samples has cpm of at least 1 for a gene. This should help if looking for genes that are low or absent in NBMs vs AMLs
+    N <- ncol(expnData[,selected_samps])
+    keep.dge <- rowSums(edgeR::cpm(dge)[,selected_samps] >= 1) >= max(2,(percent*N)) #X% of samples has cpm of at least 1 for a gene. This should help if looking for genes that are low or absent in NBMs vs AMLs
 
-    dge <- dge[keep.dge,] #subset for those genes with cmp >= 1 per gene in AML samples
-    dge <- calcNormFactors(dge)
+    dge <- dge[keep.dge,] #subset for those genes with cmp >= 1 per gene in samples
+    dge <- edgeR::calcNormFactors(dge)
 
-    TMMCPM <- cpm(dge, normalized.lib.sizes = TRUE) #log = TRUE, prior.count = add.count
+    TMMCPM <- edgeR::cpm(dge, normalized.lib.sizes = TRUE) #log = TRUE, prior.count = add.count
 
     #Use +1 to avoid outliers.... not necessarily true will revisit this. sample_idng 0.01 actually cleans up the rare fsample_idons clustering.
     TMMCPM <- as.data.frame(apply(TMMCPM, 2, function(x) log2(x + add.count)))
@@ -177,14 +186,17 @@ dge_dendrograms <- function(expnData, pheno, method,
     TMMCPM <- TMMCPM[which(rownames(TMMCPM) %in% genelist), ] #subset the matrix to genes of interest
   }
 
+  if( scale_data ){
+    TMMCPM <-  t(scale(t(TMMCPM))) #row-wise center scale (z-scores by genes)
+  }
 
   d1 <- dist(t(TMMCPM), method = "euclidean", diag = FALSE,
              upper = FALSE) #sample distances WITHOUT SCALING
   d2 <- dist(TMMCPM, method = "euclidean", diag = FALSE,
              upper = TRUE) #gene distances WITHOUT SCaling
 
-  samp.c1 <- hclust(d1, method = method, members = NULL) #sample clustering
-  gene.c2 <- hclust(d2, method = method, members = NULL) #gene clustering
+  samp.c1 <- stats::hclust(d1, method = method, members = NULL) #sample clustering
+  gene.c2 <- stats::hclust(d2, method = method, members = NULL) #gene clustering
 
 
   list <- list(TMMCPM,samp.c1,gene.c2)
@@ -193,52 +205,6 @@ dge_dendrograms <- function(expnData, pheno, method,
   return(list)
 }
 
-
-dge_dends_scale <- function(df, pheno, genelist, method){
-  #df with count data, patient IDs are column names and rows are genes.
-  #pheno is a character vector with patient IDs as names, and the status for each in each group (eg pos,neg)
-  #genelist is a character vector with the genes of interest
-  # require(edgeR)
-  # suppressPackageStartupMessages(library(dendextend))
-
-  df <- df[, intersect(names(pheno), colnames(df))] #ensure correct order, drop rows with nas just in case
-
-  AML <- ! grepl("^BM|^RO", colnames(expData))
-  AMLsamples <- ncol(expData[,AML])
-  #updated 7/26/18
-  keep.dge <- rowSums(cpm(dge)[,AML] >= 1) >= max(2, (0.01*AMLsamples)) #5% of AML samples has cpm of at least 1 for a gene
-
-  dge <- DGEList(counts = df)
-  dge <- dge[keep.dge,] #subset for those genes with cmp >= 1 per gene in AML samples
-  dge <- calcNormFactors(dge)
-
-  TMMCPM <- cpm(dge, normalized.lib.sizes = TRUE)
-  TMMCPM <- TMMCPM[which(rownames(TMMCPM) %in% genelist), ] #subset the matrix to genes of interest
-
-  names <- rownames(TMMCPM)
-  #updated to +1 to avoid outliers
-  TMMCPM <- as.data.frame(apply(TMMCPM, 2, function(x) log2(x + 1))) #log2 transform counts
-  # TMMCPM10 <- as.data.frame(apply(TMMCPM, 2, function(x) log10(x + 0.01))) #log10 transform counts
-
-  TMMCPM.n <- scale(t(TMMCPM)) #row-wise center scale (z-scores by genes)
-  TMMCPM.tn <- t(TMMCPM.n) #put back in original orientation
-
-  d1 <- dist(TMMCPM.n, method = "euclidean", diag = FALSE,
-             upper = FALSE) #sample distances
-  d2 <- dist(TMMCPM.tn, method = "euclidean", diag = FALSE,
-             upper = TRUE) #gene distances
-
-  c1 <- hclust(d1, method = method, members = NULL) #sample clustering
-  c2 <- hclust(d2, method = method, members = NULL) #gene clustering
-
-
-  list <- list(TMMCPM,names, d1,d2,c1,c2)
-  names(list) <- c("TMMCPM","names", "d1", "d2", "c1", "c2")
-
-  return(list)
-}
-
-
 colorDends <- function(hclustObject, colorCodes, group, textsize){
   #https://stackoverflow.com/questions/29265536/how-to-color-the-branches-and-tick-labels-in-the-heatmap-2
   #hclust object is the ward or other clustering matrix from hclust()
@@ -246,21 +212,6 @@ colorDends <- function(hclustObject, colorCodes, group, textsize){
   #group is the character vector with groups status, one for each patient (patientIDs as names).  Usually called phenovector in my code.
   #textsize is a numeric vector of length 2 with size for 1) the labels of axes, and 2) patient IDs on leaves.
 
-  # suppressPackageStartupMessages(require(dendextend))
-
-
-  N <- length(group)
-  groups <- as.factor(group)
-
-  dend <- dendextend::rotate(as.dendrogram(hclustObject),
-                     order = c(1:N))
-
-  branchCol <- colorCodes[as.numeric(groups)]
-  branchCol <- branchCol[order.dendrogram(dend)]
-  branchCol <- factor(branchCol, unique(branchCol))
-
-  labels_colors(dend) <- colorCodes[group][order.dendrogram(dend)]
-  dend <- color_branches(dend, clusters = as.numeric(branchCol), col = levels(branchCol))
 
   #example if want to add colored branches too
   # branch_col <- c("darkred", "forestgreen", "orange", "blue")[1:k]
@@ -268,15 +219,31 @@ colorDends <- function(hclustObject, colorCodes, group, textsize){
   # dend <- color_branches(d, k=4, col=branch_col)
 
 
+  N <- length(group)
+  groups <- as.factor(group)
+
+  dend <- dendextend::rotate(dendextend::as.dendrogram(hclustObject),
+                     order = c(1:N))
+
+  branchCol <- colorCodes[as.numeric(groups)]
+  branchCol <- branchCol[dendextend::order.dendrogram(dend)]
+  branchCol <- factor(branchCol, unique(branchCol))
+
+  labels_colors(dend) <- colorCodes[group][dendextend::order.dendrogram(dend)]
+  dend <- dendextend::color_branches(dend,
+                         clusters = as.numeric(branchCol),
+                         col = levels(branchCol))
+
   par(mfrow=c(1,1), cex=textsize[1],
       mar=c(6.5, 7.5, 8.5, 2), pty="m",
       cex.main = 1, cex.lab = 0.85)
+
   plot(dend,
-         xlab = " ", ylab=" ",  main=" ",
-         axes=TRUE,
-         type = "rectangle",
-         cex.axis=textsize[2],
-         horiz = FALSE)
+       xlab = " ", ylab=" ",  main=" ",
+       axes=TRUE,
+       type = "rectangle",
+       cex.axis=textsize[2],
+       horiz = FALSE)
 
 }
 
@@ -284,10 +251,9 @@ colorDends <- function(hclustObject, colorCodes, group, textsize){
 #Function for Grouping and Splitting Trees
 colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
                               branchCol=NULL,colorcodes){
-  # library(RColorBrewer)
-  # suppressPackageStartupMessages(library(dendextend))
-  #branchCol is a vector of length K, with the colors for the branches.
-  #color codes is a named character vector for the known groups (eg c(pos="red, neg="blue)) for the leaves.
+
+  # branchCol is a vector of length K, with the colors for the branches.
+  # color codes is a named character vector for the known groups (eg c(pos="red, neg="blue)) for the leaves.
 
   if(inherits(dendrogram, "list")){
     d <- dendrogram
@@ -309,8 +275,8 @@ colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
   }
 
   #select colors for the branches
-  dend <- color_branches(dend, k=k, h=h, col=colors)
-  labels_colors(dend) <- colorcodes[phenovector][order.dendrogram(dend)]
+  dend <- dendextend::color_branches(dend, k=k, h=h, col=colors)
+  labels_colors(dend) <- colorcodes[phenovector][dendextend::order.dendrogram(dend)]
   labels_dend <- labels(dend)
 
   #Initialize variables for the sub-dendrograms
@@ -320,7 +286,7 @@ colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
   for (i in 1:n[length(n)]){ #k
     group_labels[[i]] <- labels_dend[groups == i]
     labels_to_keep <- labels_dend[i != groups]
-    dends[[i]] <- prune(dend, labels_to_keep)
+    dends[[i]] <- dendextend::prune(dend, labels_to_keep)
   }
 
   res <- list(dend, groups, group_labels, dends)
@@ -332,22 +298,19 @@ colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
 
 
 basicHeatmap <- function(ExpnMatrix, geneDend, sampleDend, colors,title){
-  # require(gplots)
-  # library(colorspace)
-  # suppressPackageStartupMessages(library(dendextend))
-
-  #ExpnMatrix is the genes as rownames, patient IDs as colnames
-  #genedend is from hclust object
-  #sample dend is from hclust objest
-  #rowlabels is the rownames of the initial expn matrix
-  #colors is a character vector of colors of equal length of samples to illustrate the different groups
+  # ExpnMatrix is the genes as rownames, patient IDs as colnames
+  # genedend is from hclust object
+  # sample dend is from hclust objest
+  # rowlabels is the rownames of the initial expn matrix
+  # colors is a character vector of colors of equal length of samples to illustrate the different groups
 
 
   # colors = c(seq(-3,-2,length=100),seq(-2,0.5,length=100),seq(0.5,6,length=100))
   # breaks = seq(-5,5,length.out = 300), #this MUST be checked between datasets or it will be inaccurate
   # colorPal <- colorRampPalette(c("blue", "white", "red"))(n=299)
   # colorPal <- colorRampPalette(c("darkgreen", "forestgreen", "green3", "green2", "black", "firebrick1", "red3", "red4", "darkred"))(n=299)
-  colorPal <- colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=299)
+
+  colorPal <- grDevices::colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=299)
   N <- ncol(ExpnMatrix)
   N.genes <- nrow(ExpnMatrix)
   rowLabels <- rownames(ExpnMatrix)
@@ -391,54 +354,6 @@ basicHeatmap <- function(ExpnMatrix, geneDend, sampleDend, colors,title){
 }
 
 
-annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColors,main=NULL){
-  # require(NMF)
-  # suppressPackageStartupMessages(library(dendextend))
-  # library(colorspace)
-  # library(grid)
-
-  # colorPal <- colorRampPalette(c("blue", "white", "red"))(n=299)
-  #colorPal <- colorRampPalette(c("darkgreen", "forestgreen", "green3", "green2", "black", "firebrick1", "red3", "red4", "darkred"))(n=299)
-  colorPal <- colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=299)
-  # colorPal <- colorRampPalette(c("chartreuse4", "chartreuse3", "chartreuse2", "chartreuse1","black", "magenta1", "magenta2", "magenta3", "magenta4"))(n=299)
-  N <- ncol(ExpnMatrix)
-  N.genes <- nrow(ExpnMatrix)
-  rowLabels <- rownames(ExpnMatrix)
-
-  if (N.genes <= 50 ){
-    cex=1.5
-  }else if ( N.genes >=  50 & N.genes <= 100){
-    cex=0.8
-  }else if(N.genes > 100 & N.genes < 175){
-    cex=0.5
-  }else{
-    cex=0.2
-  }
-
-  par(cex.main=1.5, cex=0.75, font=2, font.axis=1, lend=1, mar=c(5,4,4,100)) #margins dont work...
-  aheatmap(as.matrix(ExpnMatrix),
-             Colv=dendextend::rotate(as.dendrogram(sampleDend),
-                                     order = c(N:1)),
-             Rowv=as.dendrogram(geneDend),
-             annCol = annoDF,
-             annColors = annoColors,
-             scale="row",
-             color = colorPal,
-             cexRow=cex,
-             cexCol=0.15,
-             labCol = NA,
-             breaks = 0,
-             treeheight = 25,
-             fontsize = 15,
-             gp = grid::gpar(cex=1.25,fontsize=20),
-             main=main)
-  # par(mar=c(5,4,4,100))
-
-  return()
-}
-
-
-
 #' Create ComplexHeatmap annotation object
 #'
 #' @param expn the normalized expression values with genes as rownames
@@ -466,46 +381,46 @@ create_HA_Labs_Hmap <- function(expn,geneList,
   #cols is a character vector of column names
 
 
-  #Example on how to use the reuslts
+    #Example on how to use the reuslts:
+    #hmap <- ComplexHmap(XXXX, hmap_anno_obj=res$annoColumn, XXX)
+    # draw(hmap + res$geneLabels, heatmap_legend_side="right", annotation_legend_side="right")
 
-  #hmap <- ComplexHmap(XXXX, hmap_anno_obj=res$annoColumn, XXX)
-  # draw(hmap + res$geneLabels, heatmap_legend_side="right", annotation_legend_side="right")
-
-    # library(dplyr)
-    # suppressPackageStartupMessages(library(ComplexHeatmap))
 
     #subset the expression matix
     expn <- expn[geneList,]
 
     #select annation columns and create factor levels
     anno <- CDE %>%
-      filter(sample_id %in% colnames(expn)) %>%
-      dplyr::select(sample_id,all_of(cols)) %>%
-      mutate(sample_id=factor(sample_id, levels = colnames(expn))) %>%
-      arrange(sample_id)#ensure same order as the expn matrix
+      dplyr::filter(sample_id %in% colnames(expn)) %>%
+      dplyr::select(sample_id, dplyr::all_of(cols)) %>%
+      dplyr::mutate(sample_id=factor(sample_id, levels = colnames(expn))) %>%
+      dplyr::arrange(sample_id)#ensure same order as the expn matrix
 
 
     #legend graphical parameters
     params <- list(show_legend=TRUE,
-                  labels_gp= grid::gpar(fontsize=12),
-                  title_gp= grid::gpar(fontsize=16),
+                  labels_gp = grid::gpar(fontsize=12),
+                  title_gp = grid::gpar(fontsize=16),
                   nrow = 6, ncol=3,
                   by_row=TRUE)
 
     if(is.null(cc)){
-      annoCol <- suppressWarnings(HeatmapAnnotation(df = anno[,-1],
-                                 name="Main Groups",
-                                 which="column",
-                                 gap=unit(1,"mm"),
-                                 border = T,
-                                 annotation_height=unit(colorbar.height, "cm"),
-                                 annotation_name_side="left",
-                                 show_annotation_name = TRUE,
-                                 annotation_legend_param = params)) #`annotation_height` is set with length of one while with multiple annotations, `annotation_height` is treated as `height`.")
+      annoCol <- suppressWarnings(
+          ComplexHeatmap::HeatmapAnnotation(df = anno[,-1],
+                                   name="Main Groups",
+                                   which="column",
+                                   gap=unit(1,"mm"),
+                                   border = T,
+                                   annotation_height=unit(colorbar.height, "cm"),
+                                   annotation_name_side="left",
+                                   show_annotation_name = TRUE,
+                                   annotation_legend_param = params)
+        ) #`annotation_height` is set with length of one while with multiple annotations, `annotation_height` is treated as `height`.")
 
     }else {
       #Dont know how to get a dummy vlaue for col(colors). NA and NULL produce an error.
-      annoCol <- suppressWarnings(HeatmapAnnotation(df = dplyr::select(anno, all_of(cols)),
+      annoCol <- suppressWarnings(
+        ComplexHeatmap::HeatmapAnnotation(df = dplyr::select(anno, all_of(cols)),
                                    name="Main Groups",
                                    col=cc,
                                    which="column",
@@ -517,7 +432,8 @@ create_HA_Labs_Hmap <- function(expn,geneList,
                                    annotation_name_side="left",
                                    annotation_height=unit(colorbar.height, "cm"),
                                    annotation_legend_param = params,
-                                   simple_anno_size_adjust=TRUE))
+                                   simple_anno_size_adjust=TRUE)
+        )
     }
 
     res <- list("annoColumn"=annoCol)
@@ -527,12 +443,13 @@ create_HA_Labs_Hmap <- function(expn,geneList,
       goi.idx <- grep(regex, rownames(expn))
       labels <- rownames(expn)[goi.idx] #needs to be numeric indexes for complexheatmap
 
-      labs <- rowAnnotation(link = anno_mark(at=goi.idx,
+      labs <- ComplexHeatmap::rowAnnotation(link = ComplexHeatmap::anno_mark(at=goi.idx,
                                              labels=labels,
                                              which="row",
                                              link_width=unit(1, "mm")),
-                            width= unit(1, "mm") + max_text_width(labels),
-                            gp=grid::gpar(fontsize=4))
+                              width = unit(1, "mm") +
+                              max_text_width(labels),
+                              gp = grid::gpar(fontsize=4))
 
       res[["geneLabels"]] <-  labs
     }
@@ -582,19 +499,13 @@ ComplexHmap <- function(mat, name="z-scores",
   #dge_dendrograms.res is the list object output from the dge_dendrograms() function.
   #samp_dend_order is the numeric vector or character vector of column names from the matrix (mat) or the dge_dengrograms.res$TMMCPM matix, in the desired order.
 
-  # suppressPackageStartupMessages(library(ComplexHeatmap))
-  # suppressPackageStartupMessages(require(circlize))
-  # library(RColorBrewer)
-  # suppressPackageStartupMessages(library(dendextend))
-  # ht_opt$message = FALSE
-
   if(threshold){
     mat[mat > 4] <- 4
     mat[mat < -4] <- -4
   }
 
   if(is.null(color_palette)){
-    pal <- colorRamp2(c(-4,-2, 0, 2, 4),
+    pal <- circlize::colorRamp2(c(-4,-2, 0, 2, 4),
                       c("deepskyblue3", "deepskyblue","white", "red", "red3"),
                       space=space.type)
   }else{
@@ -620,7 +531,7 @@ ComplexHmap <- function(mat, name="z-scores",
       print(range(mat))
     }
 
-    hmap <- Heatmap(mat,
+    hmap <- ComplexHeatmap::Heatmap(mat,
                     name=name,
                     col=pal, #use for breaks.,
 
@@ -664,10 +575,6 @@ ComplexHmap <- function(mat, name="z-scores",
       mat <- dge_dendrograms.res[[1]]
     }
 
-    # min <- min(mat)+2
-    # max <- max(mat)-2
-    # print(c(min,max))
-
     if(is.null(samp_dend_order)){
       clust <- dendextend::rotate(as.dendrogram(dge_dendrograms.res$samp.c1),
                          order=c(ncol(mat):1))
@@ -677,7 +584,7 @@ ComplexHmap <- function(mat, name="z-scores",
 
     }
 
-    hmap <- Heatmap(mat,
+    hmap <- ComplexHeatmap::Heatmap(mat,
                     name=name,
                     col=pal,
 
@@ -699,7 +606,7 @@ ComplexHmap <- function(mat, name="z-scores",
                     row_dend_width=unit(8,"mm"),
                     column_dend_height=unit(22.5,"mm"),
 
-                    top_annotation=hmap_anno_obj,
+                    top_annotation = hmap_anno_obj,
                     right_annotation = hmap_anno_obj_genes,
                     split=split,
 
@@ -718,11 +625,9 @@ ComplexHmap <- function(mat, name="z-scores",
 
 
 
-#Pheatmap
+# Pheatmap
 quickPheatmap <- function(expn,geneList, clinData,
-                          cols=c("Age.Category", #default columns
-                                 "Cytogenetic.Category.1", "SNVs",
-                                 "Cytogenetic.Category.2","Rare.Fsample_idons"),
+                          cols=NULL,
                           Add.Anno.Cols=NULL,
                           annots_col_colors=NULL){
   #expn has rows with genes as rownames
@@ -731,7 +636,7 @@ quickPheatmap <- function(expn,geneList, clinData,
   # library(pheatmap)
 
   len <- 299
-  col <- colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=len)
+  col <- grDevices::colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=len)
 
   e <- expn[geneList, intersect(colnames(expn), rownames(clinData))]
   clinData <- clinData[intersect(colnames(expn), rownames(clinData)), ]
@@ -740,11 +645,19 @@ quickPheatmap <- function(expn,geneList, clinData,
   # Breaks <- c(seq(min(e), 0, length.out=ceiling(len/2) + 1),
   #             seq(max(e)/len, max(e), length.out=floor(len/2)))
 
-  cols.colorbar <- cols
+  if(is.null(cols)){
+    #default columns
+    cols <- c("Age.Category",
+           "Cytogenetic.Category.1", "SNVs",
+           "Cytogenetic.Category.2","Rare.Fsample_idons")
+  }else{
+    cols.colorbar <- cols
+  }
+
   cols.colorbar <- c(Add.Anno.Cols, cols.colorbar)
 
   anno.col <- clinData %>%
-    dplyr::select(all_of(cols.colorbar))
+    dplyr::select(dplyr::all_of(cols.colorbar))
 
   if(is.null(annots_col_colors)){
     annots_col_colors <- lapply(anno.col, function(column){
