@@ -205,6 +205,18 @@ dge_dendrograms <- function(expnData, pheno, method,
   return(list)
 }
 
+#' Generate a dendrogram with branches colored by groups
+#'
+#' @param hclustObject hclust object is the ward or other clustering matrix from hclust()
+#' @param colorCodes colorcodes is a vector with group status="color" format
+#' @param group group is the character vector with groups status, one for each patient (sample_id as names)
+#' @param textsize textsize is a numeric vector of length 2 with size for 1) the labels of axes, and 2) sample_id on leaves
+#'
+#' @returns plot
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 colorDends <- function(hclustObject, colorCodes, group, textsize){
   #https://stackoverflow.com/questions/29265536/how-to-color-the-branches-and-tick-labels-in-the-heatmap-2
   #hclust object is the ward or other clustering matrix from hclust()
@@ -247,8 +259,20 @@ colorDends <- function(hclustObject, colorCodes, group, textsize){
 
 }
 
-
-#Function for Grouping and Splitting Trees
+#' Function for Grouping and Splitting Trees
+#'
+#' @param dendrogram a dendrogram object
+#' @param phenovector character vector with groups status, one for each patient (sample_id as names)
+#' @param k number of clusters
+#' @param h height to cut the dendrogram
+#' @param branchCol branchCol is a vector of length K, with the colors for the branches.
+#' @param colorcodes color codes is a named character vector for the known groups (eg c(pos="red, neg="blue)) for the leaves.
+#'
+#' @returns list
+#' @export
+#'
+#' @examples
+#' ex <- c("TBD")
 colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
                               branchCol=NULL,colorcodes){
 
@@ -293,64 +317,6 @@ colorDends_Groups <- function(dendrogram, phenovector, k=NULL,h=NULL,
   names(res) <- c("dend", "groups", "group_labels", "split_dends")
 
   return(res)
-}
-
-
-
-basicHeatmap <- function(ExpnMatrix, geneDend, sampleDend, colors,title){
-  # ExpnMatrix is the genes as rownames, patient IDs as colnames
-  # genedend is from hclust object
-  # sample dend is from hclust objest
-  # rowlabels is the rownames of the initial expn matrix
-  # colors is a character vector of colors of equal length of samples to illustrate the different groups
-
-
-  # colors = c(seq(-3,-2,length=100),seq(-2,0.5,length=100),seq(0.5,6,length=100))
-  # breaks = seq(-5,5,length.out = 300), #this MUST be checked between datasets or it will be inaccurate
-  # colorPal <- colorRampPalette(c("blue", "white", "red"))(n=299)
-  # colorPal <- colorRampPalette(c("darkgreen", "forestgreen", "green3", "green2", "black", "firebrick1", "red3", "red4", "darkred"))(n=299)
-
-  colorPal <- grDevices::colorRampPalette(c("deepskyblue4", "deepskyblue3", "deepskyblue2", "deepskyblue1","white","red1", "red2", "red3", "red4"))(n=299)
-  N <- ncol(ExpnMatrix)
-  N.genes <- nrow(ExpnMatrix)
-  rowLabels <- rownames(ExpnMatrix)
-
-  if ( N.genes < 50){
-    cex=1.75
-  }else if ( N.genes >= 50 & N.genes < 100){
-    cex=1.25
-  }else if(N.genes >= 100 & N.genes < 175){
-    cex=0.75
-  }else if (N.genes >= 175 & N.genes < 350){
-    cex=0.6
-  }else{
-    cex=0.2
-  }
-
-  par(cex.main=1.5, cex=0.75, font=2, font.axis=1, lend=1)
-  heatmap.2(as.matrix(ExpnMatrix),
-              Colv=dendextend::rotate(as.dendrogram(sampleDend),
-                                      order = c(N:1)),
-              Rowv=as.dendrogram(geneDend),
-              labRow=rowLabels,
-              labCol = "",
-              ColSideColors = colors,
-              density.info="density", #density.info="density",
-              trace = "none",
-              scale="row",
-              col = colorPal,
-              cexRow=cex,
-              margins=c(2,10),
-              lwid=c(.8,3),
-              lhei=c(.8,3),
-              srtCol=75,
-              adjCol=c(1,1),
-              keysize=0.75,
-              key.title="",
-              key.ylab ="",
-              key.par = list(cex=0.75),
-              main=title)
-
 }
 
 

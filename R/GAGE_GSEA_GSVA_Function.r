@@ -8,7 +8,7 @@
 
 
 
-#
+
 #' DE analysis with the gsva matrix.
 #'
 #' @param gsva_matrix output scores from gsva
@@ -222,7 +222,7 @@ gage_from_pipeline <- function(twoGroups_DEGs.res,type,geneset=NULL, method="voo
 
 ##Simple function to read in a .gmt file and return a list of pathways
 #https://github.com/arcolombo/junk/blob/5d39a5893bb7dd6328d587791b9735de14b2ff45/R/qusageArm.R
-#Directly from github. Cannot install the library.
+
 #' Read in a .gmt file and return a list of pathways
 #'
 #' @param file file path to gmt
@@ -243,7 +243,7 @@ read.gmt = function(file){
 }
 
 #
-#' Simply function to write custom list of gene-sets to gmt file format.
+#' Simple function to write custom list of gene-sets to gmt file format.
 #'
 #' @param list_of_genesets a list of gene-sets
 #' @param Description_list a paired list of gene-set descriptions
@@ -280,57 +280,56 @@ write.gmt <- function(list_of_genesets,Description_list=NA, filename="gene_sets.
   print(paste("Finshed writing gene-sets to file", filename))
 }
 
+### To Do ###
 
-#Needs to be tested
-extract_core_genes <- function(gage_from_pipeline.res,direction="up", ret.genesets=FALSE){
+# # Needs to be tested
+# extract_core_genes <- function(gage_from_pipeline.res,direction="up", ret.genesets=FALSE){
+#
+#   gage.res.sig <- gage_from_pipeline.res[sapply(gage_from_pipeline.res,length) == 5]
+#
+#   if(direction=="up"){
+#     idx <- "essSets.Up"
+#     idx.num <- 4
+#   }else if (direction=="down"){
+#     idx <- "essSets.Dn"
+#     idx.num <- 5
+#   }
+#
+#   #select the correct index for the pathway core genesets
+#   core.genes <- lapply(gage.res.sig, `[[`, idx.num)
+#   core.genes <- lapply(core.genes, `[[`, 7)
+#
+#   if(ret.genesets){
+#     return(core.genes)
+#   }
+#
+#   #Define an empty list to append to
+#   paths.core.genes <- list()
+#   #index position for the new list
+#   n <- 1
+#
+#   #for loop to un-nest the core.genes, so that they are not in a depth == 2 list
+#   for (i in 1:length(core.genes)){
+#
+#     gs <- core.genes[[i]]
+#
+#     if(i == 1){
+#       stop=length(gs)
+#     }else{
+#       stop <- n + c(length(gs)-1)
+#     }
+#
+#     items <- n:stop
+#     paths.core.genes[items] <- gs
+#     names(paths.core.genes)[items] <- names(gs)
+#
+#     n <- stop+1
+#   }
+#
+#   return(paths.core.genes)
+#
+# }
 
-  gage.res.sig <- gage_from_pipeline.res[sapply(gage_from_pipeline.res,length) == 5]
-
-  if(direction=="up"){
-    idx <- "essSets.Up"
-    idx.num <- 4
-  }else if (direction=="down"){
-    idx <- "essSets.Dn"
-    idx.num <- 5
-  }
-
-  #select the correct index for the pathway core genesets
-  core.genes <- lapply(gage.res.sig, `[[`, idx.num)
-  core.genes <- lapply(core.genes, `[[`, 7)
-
-  if(ret.genesets){
-    return(core.genes)
-  }
-
-  #Define an empty list to append to
-  paths.core.genes <- list()
-  #index position for the new list
-  n <- 1
-
-  #for loop to un-nest the core.genes, so that they are not in a depth == 2 list
-  for (i in 1:length(core.genes)){
-
-    gs <- core.genes[[i]]
-
-    if(i == 1){
-      stop=length(gs)
-    }else{
-      stop <- n + c(length(gs)-1)
-    }
-
-    items <- n:stop
-    paths.core.genes[items] <- gs
-    names(paths.core.genes)[items] <- names(gs)
-
-    n <- stop+1
-  }
-
-  return(paths.core.genes)
-
-}
-
-
-#MUST FINISH
 # GAGE.heatmap <- function(GAGE_GSA.res){
 # library(pheatmap)
 #   #result object from GAGE_GSA() function above

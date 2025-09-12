@@ -4,7 +4,7 @@
 \alias{colorCodes_aheatmap}
 \title{Create a color codes}
 \usage{
-colorCodes_aheatmap(df, random = FALSE)
+colorCodes_aheatmap(df, random = FALSE, AML_groups = FALSE)
 }
 \arguments{
 \item{df}{cleaned clinical characteristics, with patient IDs as rownames}

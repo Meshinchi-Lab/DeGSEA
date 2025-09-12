@@ -13,7 +13,9 @@ dge_dendrograms(
   percent = 0.01,
   filterTopGenes = FALSE,
   createDGE = TRUE,
-  log = FALSE
+  log = FALSE,
+  exclude_samples = NULL,
+  scale_data = FALSE
 )
 }
 \arguments{

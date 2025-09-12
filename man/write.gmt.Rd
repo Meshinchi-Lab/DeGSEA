@@ -2,7 +2,7 @@
 % Please edit documentation in R/GAGE_GSEA_GSVA_Function.r
 \name{write.gmt}
 \alias{write.gmt}
-\title{Simply function to write custom list of gene-sets to gmt file format.}
+\title{Simple function to write custom list of gene-sets to gmt file format.}
 \usage{
 write.gmt(list_of_genesets, Description_list = NA, filename = "gene_sets.gmt")
 }
@@ -17,7 +17,7 @@ write.gmt(list_of_genesets, Description_list = NA, filename = "gene_sets.gmt")
 nothing
 }
 \description{
-Simply function to write custom list of gene-sets to gmt file format.
+Simple function to write custom list of gene-sets to gmt file format.
 }
 \examples{
 ex <- c("TBD")
