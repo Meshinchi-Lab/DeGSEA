@@ -141,7 +141,7 @@ dge_dendrograms <- function(expnData, pheno, method,
 
     TMMCPM <- cpm(dge, normalized.lib.sizes = TRUE) #log = TRUE, prior.count = add.count
 
-    #Use +1 to avoid outliers.... not necessarily true will revisit this. Using 0.01 actually cleans up the rare fusions clustering.
+    #Use +1 to avoid outliers.... not necessarily true will revisit this. sample_idng 0.01 actually cleans up the rare fsample_idons clustering.
     TMMCPM <- as.data.frame(apply(TMMCPM, 2, function(x) log2(x + add.count)))
 
 
@@ -445,7 +445,7 @@ annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColor
 #' @param geneList a character vector
 #' @param goi genes of interest to label on the Heatmap. Character vector of gene symbols
 #' @param cc color codes as a named character vector.
-#' @param CDE clinical data. has column called USI
+#' @param CDE clinical data. has column called sample_id
 #' @param cols character vector of column names in CDE
 #' @param colorbar.height numeric heigh in cm
 #'
@@ -454,13 +454,15 @@ annotationHeatmap <- function(ExpnMatrix, geneDend, sampleDend,annoDF, annoColor
 #'
 #' @examples
 #' ex <- c('TBD')
-create_HA_Labs_Hmap <- function(expn,geneList, goi=NULL,cc=NULL, CDE, cols,
+create_HA_Labs_Hmap <- function(expn,geneList,
+                                CDE, cols,
+                                goi=NULL,cc=NULL,
                                 colorbar.height=5){
   #expn is the normalized expression values with genes as rownames
   #gene list a character vector
   #goi are genes of interest to highlight on the Heatmap. Character vector of gene symbols
   #cc are color codes in WHICH FORMAT?
-  #CDE has column called USI
+  #CDE has column called sample_id
   #cols is a character vector of column names
 
 
@@ -477,10 +479,10 @@ create_HA_Labs_Hmap <- function(expn,geneList, goi=NULL,cc=NULL, CDE, cols,
 
     #select annation columns and create factor levels
     anno <- CDE %>%
-      filter(USI %in% colnames(expn)) %>%
-      dplyr::select(USI,all_of(cols)) %>%
-      mutate(USI=factor(USI, levels = colnames(expn))) %>%
-      arrange(USI)#ensure same order as the expn matrix
+      filter(sample_id %in% colnames(expn)) %>%
+      dplyr::select(sample_id,all_of(cols)) %>%
+      mutate(sample_id=factor(sample_id, levels = colnames(expn))) %>%
+      arrange(sample_id)#ensure same order as the expn matrix
 
 
     #legend graphical parameters
@@ -701,7 +703,7 @@ ComplexHmap <- function(mat, name="z-scores",
                     right_annotation = hmap_anno_obj_genes,
                     split=split,
 
-                    #cluster the rows (genes) using the scaled matrix rather than pre-defined order in the dge.dendrograms object.
+                    #cluster the rows (genes) sample_idng the scaled matrix rather than pre-defined order in the dge.dendrograms object.
                     #the clustering on non-scaled then visualizing the scaled rows really changes the expression pattern on the rows.
                     clustering_distance_rows="euclidean",
                     clustering_method_rows=cluster.method,
@@ -720,11 +722,11 @@ ComplexHmap <- function(mat, name="z-scores",
 quickPheatmap <- function(expn,geneList, clinData,
                           cols=c("Age.Category", #default columns
                                  "Cytogenetic.Category.1", "SNVs",
-                                 "Cytogenetic.Category.2","Rare.Fusions"),
+                                 "Cytogenetic.Category.2","Rare.Fsample_idons"),
                           Add.Anno.Cols=NULL,
                           annots_col_colors=NULL){
   #expn has rows with genes as rownames
-  #clinData has rowns with patient USIs as rownames - matches the expn data column names
+  #clinData has rowns with patient sample_ids as rownames - matches the expn data column names
 
   # library(pheatmap)
 
