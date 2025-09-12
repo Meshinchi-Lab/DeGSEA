@@ -7,10 +7,10 @@
 create_HA_Labs_Hmap(
   expn,
   geneList,
-  goi = NULL,
-  cc = NULL,
   CDE,
   cols,
+  goi = NULL,
+  cc = NULL,
   colorbar.height = 5
 )
 }
@@ -19,13 +19,13 @@ create_HA_Labs_Hmap(
 
 \item{geneList}{a character vector}
 
+\item{CDE}{clinical data. has column called sample_id}
+
+\item{cols}{character vector of column names in CDE}
+
 \item{goi}{genes of interest to label on the Heatmap. Character vector of gene symbols}
 
 \item{cc}{color codes as a named character vector.}
-
-\item{CDE}{clinical data. has column called USI}
-
-\item{cols}{character vector of column names in CDE}
 
 \item{colorbar.height}{numeric heigh in cm}
 }
