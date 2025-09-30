@@ -34,8 +34,8 @@ colorVectors_asList <- function(df, colors=NULL){
                 "deeppink", "green4", "navajowhite2",
                 "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
                 "mediumorchid", "darkmagenta") %>%
-      c(., grDevices::colors())
-      unique()
+      c(., grDevices::colors()) %>%
+      unique(.)
   }
 
   list <- NULL
