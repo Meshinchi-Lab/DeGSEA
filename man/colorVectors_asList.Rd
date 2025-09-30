@@ -4,10 +4,12 @@
 \alias{colorVectors_asList}
 \title{Create a list of color codes for all columns in a datafram}
 \usage{
-colorVectors_asList(df)
+colorVectors_asList(df, colors = NULL)
 }
 \arguments{
 \item{df}{df of cleaned clinical characteristics. patient IDs as rownames}
+
+\item{colors}{optional vector of color names}
 }
 \value{
 list with names matching the column names of the input df. Returns a vector of colors, length of number rows in the data.frame.

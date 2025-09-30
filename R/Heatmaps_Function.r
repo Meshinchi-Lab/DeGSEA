@@ -9,17 +9,33 @@
 #' Create a list of color codes for all columns in a datafram
 #'
 #' @param df df of cleaned clinical characteristics. patient IDs as rownames
-#'
+#' @param colors optional vector of color names
 #' @returns list with names matching the column names of the input df. Returns a vector of colors, length of number rows in the data.frame.
 #' @export
 #'
 #' @examples
 #' ex <- c("TBD")
-colorVectors_asList <- function(df){
+colorVectors_asList <- function(df, colors=NULL){
   # library(RColorBrewer)
   #df of cleaned clinical characteristics. patient IDs as rownames
 
   cols <- colnames(df)
+
+  if(is.null(colors)){
+    colors <- c("turquoise3", "yellow", "blue", "firebrick1",
+                "black","seagreen2", "maroon", "orchid", "cornflowerblue",
+                "darkblue", "azure4", "chartreuse1", "darkmagenta","orange1",
+                "deeppink", "darkslategray1", "green4", "navajowhite2",
+                "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
+                "mediumorchid", "saddlebrown", "#E41A1C", "#377EB8" ,"#4DAF4A" ,
+                "#F781BF","blue1", "darkslategray3","burlywood3", "#984EA3", "#FF7F00",
+                "seagreen2", "maroon", "orchid", "cornflowerblue", "yellow2",
+                "darkblue", "azure4", "chartreuse1", "orange1",
+                "deeppink", "green4", "navajowhite2",
+                "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
+                "mediumorchid", "darkmagenta") %>%
+      unique()
+  }
 
   list <- NULL
   for (col in cols){
@@ -27,18 +43,6 @@ colorVectors_asList <- function(df){
     names(vector) <- rownames(df)
 
     groups <- unique(df[,col])
-    colors <- c("turquoise3", "yellow", "blue", "firebrick1",
-                "black","seagreen2", "maroon", "orchid", "cornflowerblue",
-                "darkblue", "azure4", "chartreuse1", "darkmagenta","orange1",
-                "deeppink", "darkslategray1", "green4", "navajowhite2",
-                "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
-                "mediumorchid", "saddlebrown", "#E41A1C", "#377EB8" ,"#4DAF4A" ,
-               "#F781BF","blue1", "darkslategray3","burlywood3", "#984EA3", "#FF7F00",
-               "seagreen2", "maroon", "orchid", "cornflowerblue", "yellow2",
-               "darkblue", "azure4", "chartreuse1", "orange1",
-               "deeppink", "darkslategray1", "green4", "navajowhite2",
-               "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
-               "mediumorchid", "darkmagenta")
 
     for (i in 1:length(groups)){
       vector[vector == groups[i]] <- colors[i]
