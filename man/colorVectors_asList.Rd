@@ -10,7 +10,7 @@ colorVectors_asList(df)
 \item{df}{df of cleaned clinical characteristics. patient IDs as rownames}
 }
 \value{
-list
+list with names matching the column names of the input df. Returns a vector of colors, length of number rows in the data.frame.
 }
 \description{
 Create a list of color codes for all columns in a datafram

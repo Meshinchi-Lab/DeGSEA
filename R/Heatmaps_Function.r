@@ -10,7 +10,7 @@
 #'
 #' @param df df of cleaned clinical characteristics. patient IDs as rownames
 #'
-#' @returns list
+#' @returns list with names matching the column names of the input df. Returns a vector of colors, length of number rows in the data.frame.
 #' @export
 #'
 #' @examples
@@ -24,13 +24,21 @@ colorVectors_asList <- function(df){
   list <- NULL
   for (col in cols){
     vector <- df[,col]
+    names(vector) <- rownames(df)
+
     groups <- unique(df[,col])
     colors <- c("turquoise3", "yellow", "blue", "firebrick1",
                 "black","seagreen2", "maroon", "orchid", "cornflowerblue",
                 "darkblue", "azure4", "chartreuse1", "darkmagenta","orange1",
                 "deeppink", "darkslategray1", "green4", "navajowhite2",
                 "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
-                "mediumorchid", "saddlebrown")
+                "mediumorchid", "saddlebrown", "#E41A1C", "#377EB8" ,"#4DAF4A" ,
+               "#F781BF","blue1", "darkslategray3","burlywood3", "#984EA3", "#FF7F00",
+               "seagreen2", "maroon", "orchid", "cornflowerblue", "yellow2",
+               "darkblue", "azure4", "chartreuse1", "orange1",
+               "deeppink", "darkslategray1", "green4", "navajowhite2",
+               "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
+               "mediumorchid", "darkmagenta")
 
     for (i in 1:length(groups)){
       vector[vector == groups[i]] <- colors[i]
@@ -48,7 +56,7 @@ colorVectors_asList <- function(df){
 #' @param df cleaned clinical characteristics, with patient IDs as rownames
 #' @param random boolean. should colors be selected by random sampling.
 #'
-#' @return list
+#' @return list with names as the input columns of the data.frame. Each list has 1 color-value mapped to 1 category (class)
 #' @export
 #'
 #' @examples
@@ -61,8 +69,13 @@ colorCodes_aheatmap <- function(df,random=FALSE,AML_groups=FALSE){
   list <- NULL
   for (col in cols){
     groups <- unique(df[,col])[order(unique(df[,col]))] #alphabetical order
-    colors <- c("#E41A1C", "#377EB8" ,"#4DAF4A" ,
-                 "#F781BF","blue1", "darkslategray3","burlywood3", "#984EA3", "#FF7F00",
+    colors <- c("turquoise3", "yellow", "blue", "firebrick1",
+                "black","seagreen2", "maroon", "orchid", "cornflowerblue",
+                "darkblue", "azure4", "chartreuse1", "darkmagenta","orange1",
+                "deeppink", "darkslategray1", "green4", "navajowhite2",
+                "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
+                "mediumorchid", "saddlebrown", "#E41A1C", "#377EB8" ,"#4DAF4A" ,
+                "#F781BF","blue1", "darkslategray3","burlywood3", "#984EA3", "#FF7F00",
                 "seagreen2", "maroon", "orchid", "cornflowerblue", "yellow2",
                 "darkblue", "azure4", "chartreuse1", "orange1",
                 "deeppink", "darkslategray1", "green4", "navajowhite2",

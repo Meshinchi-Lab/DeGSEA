@@ -12,7 +12,7 @@ colorCodes_aheatmap(df, random = FALSE, AML_groups = FALSE)
 \item{random}{boolean. should colors be selected by random sampling.}
 }
 \value{
-list
+list with names as the input columns of the data.frame. Each list has 1 color-value mapped to 1 category (class)
 }
 \description{
 Create a color codes
