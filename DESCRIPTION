@@ -25,4 +25,5 @@ Imports:
     graphics,
     stats,
     utils,
-    grid
+    grid,
+    BiocManager

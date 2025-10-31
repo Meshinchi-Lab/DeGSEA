@@ -25,8 +25,8 @@ getIDmap <- function(GTF){
     dplyr::filter(grepl("transcript", V3)) %>%
     dplyr::select(V9) %>%
     unlist(.) %>%
-    str_split(., pattern = "; ") %>%
-    lapply(., function(x) t(str_split(x, pattern = " ", simplify = TRUE))) %>%
+    stringr::str_split(., pattern = "; ") %>%
+    lapply(., function(x) t(stringr::str_split(x, pattern = " ", simplify = TRUE))) %>%
     sapply(.,  function(x) set_colnames(x, value = x[1,])[-1,]) %>%
     sapply(., function(x) data.frame(as.list(x))) %>%
     dplyr::bind_rows(.)
@@ -54,7 +54,7 @@ collapseRows <- function(col, uniq=FALSE, split=FALSE,sep=""){
 
   if (uniq){
     if(split){
-      col <- str_split(col, pattern = sep) %>% unlist() %>% unique()
+      col <- stringr::str_split(col, pattern = sep) %>% unlist() %>% unique()
     }else{
       col <- unique(col)
     }
