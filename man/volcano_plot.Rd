@@ -4,10 +4,12 @@
 \alias{volcano_plot}
 \title{function for volcano plot}
 \usage{
-volcano_plot(limma_eBayesFit, cut.off = 2.5, label.offset = 0.5)
+volcano_plot(limma_eBayesFit, contrast = 1, cut.off = 2.5, label.offset = 0.5)
 }
 \arguments{
 \item{limma_eBayesFit}{a limma eBayesFit object}
+
+\item{contrast}{a numeric value for the contrast (column) from the coefficients to plot}
 
 \item{cut.off}{a numeric value of log2 fold-change for gene labels on points}
 
