@@ -3,28 +3,27 @@
 #3/5/18
 
 
-#purpose: function for volcano plots and MA plots
+
+#' function for volcano plot
+#'
+#' @param limma_eBayesFit a limma eBayesFit object
+#' @param cut.off a numeric value of log2 fold-change for gene labels on points
+#' @param label.offset a numeric value for nudge_y in ggrepel::geom_text_repel
+#'
+#' @returns a ggplot object
+#' @export
+#'
+#' @examples
+#' output <- c('TBD')
+volcano_plot <- function(limma_eBayesFit, cut.off=2.5, label.offset=0.5){
 
 
-volcano_plot <- function(twoGroups_DEGs.res, cut.off=2.5, label.offset=0.5){
-
-  # library(limma)
-  # library(tibble)
-  # library(ggplot2)
-  # library(ggrepel)
-
-  #Only prints out - cannot be saved
-  # vplot1 <- volcanoplot(twoGroups_DEGs.res$DE$eBayesFit,
-  #             highlight = 5,
-  #             names=rownames(twoGroups_DEGs.res$DE$eBayesFit),
-  #             pch=16, cex=1.75)
-
-  df <- data.frame(logFC=twoGroups_DEGs.res$DE$eBayesFit$coefficients[,1],
-                   pValue=twoGroups_DEGs.res$DE$eBayesFit$p.value[,1],
-                   FDR=p.adjust(twoGroups_DEGs.res$DE$eBayesFit$p.value[,1], method="BH"),
-                   MeanExpression=twoGroups_DEGs.res$DE$eBayesFit$Amean) %>%
-      rownames_to_column("Gene") %>%
-      mutate(Neg.Log10.P= -log10(pValue),
+  df <- data.frame(logFC=limma_eBayesFit$coefficients[,1],
+                   pValue=limma_eBayesFit$p.value[,1],
+                   FDR=p.adjust(limma_eBayesFit$p.value[,1], method="BH"),
+                   MeanExpression=limma_eBayesFit$Amean) %>%
+      tibble::rownames_to_column("Gene") %>%
+      dplyr::mutate(Neg.Log10.P= -log10(pValue),
              Neg.Log10.FDR= -log10(FDR),
              DEGs.Groups=case_when(
                   logFC > 1.0 & FDR < 0.05 ~ "FC Greater than 2",
@@ -61,25 +60,36 @@ volcano_plot <- function(twoGroups_DEGs.res, cut.off=2.5, label.offset=0.5){
           axis.title = element_text(size = 30),
           plot.margin = margin(2,2,2,2, unit = "mm")) +
 
-    geom_text_repel(aes(x=logFC, y=Neg.Log10.FDR, label=Gene),
+    ggrepel::geom_text_repel(aes(x=logFC, y=Neg.Log10.FDR, label=Gene),
                     size=3.5,
+                    nudge_y = label.offset,
                     data=df[idx, ])
 
-  res <- list("gg.volcano"=vplot2, "data"=df)
-  return(res)
+
+  return(vplot2)
 
 }
 
 
+#' MA plot
+#'
+#' @param limma_eBayesFit a limma eBayesFit object
+#' @param cut.off a numeric value of log2 fold-change for gene labels on points
+#' @param label.offset a numeric value for nudge_y in ggrepel::geom_text_repel
+#'
+#' @returns a ggplot object
+#' @export
+#'
+#' @examples
+#' output <- c('TBD')
+MA_plot <- function(limma_eBayesFit, cut.off=2.5, label.offset=0.5){
 
-MA_plot <- function(twoGroups_DEGs.res, cut.off=2.5, label.offset=0.5){
-
-  df <- data.frame(logFC=twoGroups_DEGs.res$DE$eBayesFit$coefficients[,1],
-                   pValue=twoGroups_DEGs.res$DE$eBayesFit$p.value[,1],
-                   FDR=p.adjust(twoGroups_DEGs.res$DE$eBayesFit$p.value[,1], method="BH"),
-                   MeanExpression=DS.DE$DE$eBayesFit$Amean) %>%
-    rownames_to_column("Gene") %>%
-    mutate(Neg.Log10.P= -log10(pValue),
+  df <- data.frame(logFC=limma_eBayesFit$coefficients[,1],
+                   pValue=limma_eBayesFit$p.value[,1],
+                   FDR=p.adjust(limma_eBayesFit$p.value[,1], method="BH"),
+                   MeanExpression=limma_eBayesFit$Amean) %>%
+    tibble::rownames_to_column("Gene") %>%
+    dplyr::mutate(Neg.Log10.P= -log10(pValue),
            DEGs.Groups=case_when(
              logFC > 1.0 & pValue < 0.05 ~ "FC Greater than 2",
              logFC < -1.0 & pValue < 0.05 ~ "FC Less than 2",
@@ -108,6 +118,17 @@ MA_plot <- function(twoGroups_DEGs.res, cut.off=2.5, label.offset=0.5){
             axis.text.y = element_text(size = 25),
             axis.title = element_text(size = 30),
             plot.margin = margin(2,2,2,2, unit = "mm"))
+
+
+    #Select differentially expressed genes to highlight in the plot.
+    idx <- which(abs(df$logFC) > cut.off & df$FDR < 0.05)
+
+    MAplot <- MAplot +
+      ggrepel::geom_text_repel(aes(x=logFC, y=Neg.Log10.FDR, label=Gene),
+                             size=3.5,
+                             nudge_y = label.offset,
+                             data=df[idx, ])
+
 
     return(MAplot)
 }
