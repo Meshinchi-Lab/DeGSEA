@@ -8,7 +8,7 @@
 #Heatmaps have option for additional color bars
 
 
-#Function to create a gene ID map for ensembl gene_id, and transcript_ids
+
 #' Create a gene ID map for ensembl gene_id, and transcript_ids
 #'
 #' @param GTF a gtf file
@@ -27,7 +27,7 @@ getIDmap <- function(GTF){
     unlist(.) %>%
     stringr::str_split(., pattern = "; ") %>%
     lapply(., function(x) t(stringr::str_split(x, pattern = " ", simplify = TRUE))) %>%
-    sapply(.,  function(x) set_colnames(x, value = x[1,])[-1,]) %>%
+    sapply(.,  function(x) magrittr::set_colnames(x, value = x[1,])[-1,]) %>%
     sapply(., function(x) data.frame(as.list(x))) %>%
     dplyr::bind_rows(.)
 

@@ -1,6 +1,6 @@
 Package: DeGSEA
 Title: Differential Expression and GSEA workflows along with Vizualization Functions
-Version: 0.0.0.9
+Version: 0.1
 Authors@R: 
     person("Jenny", "Smith", , "jennyl.smith12@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-0402-2779"))

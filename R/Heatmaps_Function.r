@@ -31,9 +31,7 @@ colorVectors_asList <- function(df, colors=NULL){
                 "#F781BF","blue1", "darkslategray3","burlywood3", "#984EA3", "#FF7F00",
                 "seagreen2", "maroon", "orchid", "cornflowerblue", "yellow2",
                 "darkblue", "azure4", "chartreuse1", "orange1",
-                "deeppink", "green4", "navajowhite2",
-                "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
-                "mediumorchid", "darkmagenta") %>%
+                "deeppink", "green4", "navajowhite2") %>%
       c(., grDevices::colors()) %>%
       unique(.)
   }
@@ -85,25 +83,30 @@ colorCodes_aheatmap <- function(df,random=FALSE,AML_groups=FALSE){
                 "darkblue", "azure4", "chartreuse1", "orange1",
                 "deeppink", "darkslategray1", "green4", "navajowhite2",
                 "brown3", "darkgoldenrod3", "deepskyblue1", "lightcoral",
-                "mediumorchid", "darkmagenta")
+                "mediumorchid", "darkmagenta") %>%
+      c(., grDevices::colors()) %>%
+      unique()
 
     n <- length(groups)
     cc <- colors[1:n]
     names(cc) <- groups
 
-    if (AML_groups){
-      #update based on common group names used in my heatmaps
-      if(any(grepl("Other$", groups))){
-        cc["Other"] <- "lightgrey"}
 
-      if(any(grepl("OtherAML", groups))){
-        cc["OtherAML"] <- "lightgrey"}
+    #update based on common group names used in my heatmaps
+    if(any(grepl("Other$|[Uu]nknown", groups))){
+      cc["Other"] <- "lightgrey"
+    }
 
-      if(any(grepl("No$", groups))){
-        cc["No"] <- "lightgrey"}
+    if(any(grepl("OtherAML", groups))){
+      cc["OtherAML"] <- "lightgrey"
+    }
 
-      if(any(grepl("^NBM$", groups))){
-        cc["NBM"] <- "black"}
+    if(any(grepl("No$", groups))){
+      cc["No"] <- "lightgrey"
+    }
+
+    if(any(grepl("^NBM$", groups))){
+      cc["NBM"] <- "black"
     }
 
     #append color vector to list
