@@ -262,7 +262,7 @@ PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
 #' @export
 #'
 #' @examples
-#' mat <- matrix(rnorm(10), nrow = 10, ncol = 10)
+#' mat <- matrix(runif(100,min = 0, max = 15), nrow = 10, ncol = 10)
 #' metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
 #' pca_custom(mat, metadata, colorCol = "mutation")
 pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE,
