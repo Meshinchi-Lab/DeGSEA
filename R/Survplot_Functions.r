@@ -52,10 +52,10 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
     }
 
     #model fit
-    survFit <- survival::survfit(KM ~ group, data=df)
+    survFit <- survival::survfit(as.formula(glue::glue("KM ~ {group}")), data = df)
 
     #cox proportional Hazards
-    cph.test <- survival::coxph(KM ~ df[,group])
+    cph.test <- survival::coxph(as.formula(glue::glue("KM ~ {group}")), data = df)
 
     #test proportional hazards assumption
     cph.zph <- survival::cox.zph(cph.test, transform = "km")
