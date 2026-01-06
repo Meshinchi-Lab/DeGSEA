@@ -2,7 +2,7 @@
 % Please edit documentation in R/Survplot_Functions_2018.10.24.r
 \name{SurvivalPlot}
 \alias{SurvivalPlot}
-\title{Title}
+\title{Survival plot without gridlines}
 \usage{
 SurvivalPlot(
   fit,
@@ -33,7 +33,7 @@ SurvivalPlot(
 a ggplot object
 }
 \description{
-Title
+Survival plot without gridlines
 }
 \examples{
  TBD <- ("")

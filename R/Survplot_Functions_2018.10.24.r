@@ -84,8 +84,8 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
 }
 
 
-# Survival plot without gridlines.
-#' Title
+#
+#' Survival plot without gridlines
 #'
 #' @param fit the output of the survFit() function.
 #' @param LegendTitle character vector which will be the plot legend title.
@@ -415,7 +415,7 @@ KM.plots <- function(df, group_vars=NULL,
         do( EFS.cox=coxph(EFS.form, data = .),
             EFS.fit=survfit(EFS.form, data=.),
             EFS.diff=survdiff(EFS.form, data=.), #survdiff for log-rank p-value
-            EFS=SurvivalPlot(survfit(EFS.form, data=.),
+            EFS=DeGSEA::SurvivalPlot(survfit(EFS.form, data=.),
                              LegendTitle= covariate,
                              timeUnit= "Years",
                              max.year = max.year,
