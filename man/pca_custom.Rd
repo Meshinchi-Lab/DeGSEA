@@ -42,7 +42,9 @@ list of plots
 Custom PCA plot
 }
 \examples{
-mat <- matrix(runif(100,min = 0, max = 15), nrow = 10, ncol = 10)
+mat <- sapply(1:10, function(i){ runif(100,min = 0, max = 15) })
+colnames(mat) <- paste0("s",1:10)
 metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
-pca_custom(mat, metadata, colorCol = "mutation")
+rownames(metadata) <- paste0("s",1:10)
+pca_custom(expnData = mat,  CDE = metadata, fillCol = "mutation", colorCol = "mutation")
 }

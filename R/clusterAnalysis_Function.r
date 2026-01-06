@@ -262,9 +262,11 @@ PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
 #' @export
 #'
 #' @examples
-#' mat <- matrix(runif(100,min = 0, max = 15), nrow = 10, ncol = 10)
+#' mat <- sapply(1:10, function(i){ runif(100,min = 0, max = 15) })
+#' colnames(mat) <- paste0("s",1:10)
 #' metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
-#' pca_custom(mat, metadata, colorCol = "mutation")
+#' rownames(metadata) <- paste0("s",1:10)
+#' pca_custom(expnData = mat,  CDE = metadata, fillCol = "mutation", colorCol = "mutation")
 pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE,
                        single.col.outline=FALSE, toHighlight=NULL, ellipse=FALSE){
   # library(tibble)
@@ -284,8 +286,8 @@ pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE
   summ <- summary(pca)
 
   scores <- as.data.frame(pca$x) %>%
-    rownames_to_column("USI") %>%
-    inner_join(., dplyr::select(CDE,USI=matches("USI$"), everything()), by="USI") %>%
+    tibble::rownames_to_column("USI") %>%
+    dplyr::inner_join(., dplyr::select(CDE,USI=matches("USI$"), everything()), by="USI") %>%
     dplyr::select(USI,fillCol, colorCol, everything())
 
   #Plot function for  PC1 and either PC2 or anyother
@@ -294,7 +296,7 @@ pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE
     idx <- as.numeric(gsub("[A-Za-z]{2}","", PC))
 
 
-    pca.plot  <- ggplot(scores, aes_string(x="PC1", y=PC)) +
+    pca.plot  <- ggplot2::ggplot(scores, aes_string(x="PC1", y=PC)) +
       labs(x=paste("PC1: ", round(summ$importance[2,1], digits=3)*100, "% variance"),
            y=paste(paste0(PC,": "), round(summ$importance[2,idx], digits=3)*100, "% variance")) +
       theme_numX  +
