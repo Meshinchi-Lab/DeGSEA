@@ -4,6 +4,20 @@
 #Purpose: Create a list of survival analyses and Given survival package Survfit() object, plot the survival curves and calculate the P values for differences in survival.
 
 
+#' Generate a list of KM and Cox PH objects
+#'
+#' @param df dataframe with clinical data.
+#' @param colNames character vector (length 2) with the colnames of the time and event, in that order.
+#' @param group column name as character vector of the explanatory variable to test, or numeric value of 1 for 1 line KM
+#' @param rho 1 or 0 or inbetween. 0=logrank test and 1=gehan-wilcoxon test
+#' @param time optional if you need to convert days to years for example.
+#' @param ref character indicating the group classification that is the reference
+#'
+#' @returns a list with survfit objects
+#' @export
+#'
+#' @examples
+#' TBD <- c("")
 SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
   #df is the dataframe with clinical data.
   #colnames is a character vector (length 2) with the colnames of the time and event, in that order.
@@ -70,7 +84,22 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
 }
 
 
-#Survival plot without gridlines.
+# Survival plot without gridlines.
+#' Title
+#'
+#' @param fit the output of the survFit() function.
+#' @param LegendTitle character vector which will be the plot legend title.
+#' @param timeUnit character vector for the follow-up time in days, years, months etc.
+#' @param include.censored boolean whether the add the ticks to indicate censored
+#' @param colors character vector the same length as the number of groups.
+#' @param pval string (charcter or numeric) of the p-value
+#' @param max.year time (singe numeric) in years to end the plot at.
+#'
+#' @returns a ggplot object
+#' @export
+#'
+#' @examples
+#'  TBD <- ("")
 SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, colors,pval=NULL,max.year=NULL){
   #fit the output of the survFit() function.
   #legend title is a character vector which will be the plot legend title.
@@ -273,53 +302,58 @@ risk.table <- function(survFit.obj, f.levels=NULL,
 }
 
 
-##The function below added 10/2/17
-KM.plots <- function(df, group_vars=NULL, type="OS",
+
+#' Create Kaplan-Meier Plots
+#'
+#' @param df cleaned CDE with patient IDs as rownames.
+#' @param group_vars character vector of a column name to group_by() in dplyr.
+#' @param column_names list with colnames OS for OS and EFS for "EFS" in the CDE
+#' @param covariate character string for the column in CDE to be the explanatory variable
+#' @param cc color codes with one color per group
+#' @param riskTable boolean to generate a risk table under the KM plot
+#' @param f.levels character vector of factor levels for the risk table
+#' @param max.year year to calculate the statistics in the risk table (eg 5yrs after follow-up)
+#' @param include.censored boolean to draw the tick marks on the curve to show censored points
+#'
+#' @returns a grouped data.frame with the surv objects and the KM plots
+#' @export
+#'
+#' @examples
+#' my_cols <-  list("OS"=c("OS.time","OS.id"), "EFS"=c("EFS.time","EFS.id"))
+#'
+KM.plots <- function(df, group_vars=NULL,
+                     column_names=list("OS"=c("Overall.Survival.Time.in.Days", "OS.ID")),
                      covariate,
-                     cohort,cc=NULL,
+                     cc=NULL,
                      riskTable=TRUE,
                      f.levels=NULL,
                      max.year=NULL,
-                     custom_cols=NULL,
                      include.censored=TRUE){
-  # library(dplyr)
-  # library(tibble)
-  # library(survival)
-  # library(magrittr)
-  # library(tidyr)
-  # suppressPackageStartupMessages(require(gridExtra))
 
-  #df is the cleaned CDE with patient IDs as rownames.
-  #group_vars is a character vector of a column name to group_by() in dplyr.
-  #type is "OS" for OS/EFS or "EOI" for end of induction time points
-  #covariate is a character string for the column in CDE to be the explanatory variable
-  #cohort is for "0531" or "1031" (different colnames)
 
   #Define KM estimates for survival analysis
-  if (cohort == "0531" & type=="OS"){
-    os.est <- "Surv(Overall.Survival.Time.in.Days/365.25, OS.ID)"
-    efs.est <- "Surv(Event.Free.Survival.Time.in.Days/365.25, Event.ID)"
-  }else if (cohort == "1031" & type=="OS"){
-    os.est <- "Surv(OS.time..days./365.25, OS.ID)"
-    efs.est <- "Surv(EFS.time..days./365.25, Event.ID)"
-  }else if (cohort == "TCGA" & type=="OS"){
-    os.est <- "Surv(OS.months..3.31.12/12, clinData1.vital_status)"
-    efs.est <- "Surv(EFS.months....3.31.12/12, first.event)"
-  }else if (cohort=="BEAT_AML" & type=="OS"){
-    os.est <- "Surv(OverallSurvival_VIZOME/365.25, OS.ID)"
-    #No EFS data available
-  }else if (type=="EOI"){
-    if(is.null(custom_cols)){message("Need custom columnames for time and event for EOI analyses.
-                                     Custom calls must a list of 2 names os.est and efs.est containing vector of
-                                     time column in days and event.type indicator column as 0,1 in that order.");
-      return(custom_cols)}
-    os.est <- paste0("Surv(",custom_cols[["os.est"]][1],"/365.25",", ",custom_cols[["os.est"]][2], ")")
-    efs.est <- paste0("Surv(",custom_cols[["efs.est"]][1],"/365.25",", ",custom_cols[["efs.est"]][2], ")")
+  # if (cohort == "0531" & type=="OS"){
+  #   os.est <- "Surv(Overall.Survival.Time.in.Days/365.25, OS.ID)"
+  #   efs.est <- "Surv(Event.Free.Survival.Time.in.Days/365.25, Event.ID)"
+  # }else if (cohort == "1031" & type=="OS"){
+  #   os.est <- "Surv(OS.time..days./365.25, OS.ID)"
+  #   efs.est <- "Surv(EFS.time..days./365.25, Event.ID)"
+  # }else if (cohort == "TCGA" & type=="OS"){
+  #   os.est <- "Surv(OS.months..3.31.12/12, clinData1.vital_status)"
+  #   efs.est <- "Surv(EFS.months....3.31.12/12, first.event)"
+  # }else if (cohort=="BEAT_AML" & type=="OS"){
+  #   os.est <- "Surv(OverallSurvival_VIZOME/365.25, OS.ID)"
+  #   #No EFS data available
+  # }else if (type=="EOI"){
+
+  os.est <- glue::glue("Surv({column_names$OS[1]}, {column_names$OS[2]})")
+
+  if(!is.null(column_names[["EFS"]])){
+    efs.est <- glue::glue("Surv({column_names$EFS[1]}, {column_names$EFS[2]})")
   }
 
-
   #function for colors
-  colorcodes <- function(df,covariate){
+  colorcodes <- function(df, covariate){
     strata <- unlist(unique(df[,covariate])) #Unique groups (strata)
     strata <- strata[order(strata)] #ensure the alphabetical order
     len <- length(strata)
@@ -332,8 +366,10 @@ KM.plots <- function(df, group_vars=NULL, type="OS",
                   "deepskyblue1",
                   "azure4", "darkmagenta",
                   "turquoise4", "green4",
-                  "deeppink", "navajowhite2","chartreuse2","lightcoral",
-                  "mediumorchid", "saddlebrown", "#466791","#60bf37","#953ada",
+                  "deeppink", "navajowhite2","chartreuse2",
+                  "lightcoral",
+                  "mediumorchid", "saddlebrown", "#466791",
+                  "#60bf37","#953ada",
                   "#4fbe6c","#ce49d3","#a7b43d","#5a51dc",
                   "#d49f36","#552095","#507f2d","#db37aa",
                   "#84b67c","#a06fda","#df462a","#5b83db",
@@ -341,7 +377,8 @@ KM.plots <- function(df, group_vars=NULL, type="OS",
                   "#334c22","#d83979","#55baad","#dc4555",
                   "#62aad3","#8c3025","#417d61","#862977",
                   "#bba672","#403367","#da8a6d","#a79cd4",
-                  "#71482c","#c689d0","#6b2940","#d593a7","#895c8b","#bd5975")
+                  "#71482c","#c689d0","#6b2940","#d593a7",
+                  "#895c8b","#bd5975")
       cc <- NULL
       for ( i in 1:len){
         c <- colors[i]
@@ -408,7 +445,7 @@ KM.plots <- function(df, group_vars=NULL, type="OS",
   #Function to extract N of cohort.
   groupSize <- function(survdiff.res){paste0("N = ", sum(survdiff.res$n))}
 
-  #Update the survial plots with an informative title and p values, and group N
+  #Update the survival plots with an informative title and p values, and group N
   types <- c("Relapse", "Failure", "OS", "EFS")
   plots <- which(colnames(grouped.df) %in% types)
 
@@ -567,8 +604,18 @@ coxSummaryTable <- function(coxph.res,Colname="Group"){
 
 
 
-#functions to calculate the p-value for differnces in KM curves from survdiff() function
-#Tests if there is a difference between two or more survival curves using the G-rho family of tests, or for a single curve against a known alternative.
+# functions to calculate the p-value for differences in KM curves from survdiff() function
+#
+#' Tests if there is a difference between two or more survival curves using the G-rho family of tests, or for a single curve against a known alternative.
+#'
+#' @param survdiff object generated by the survdiff() function from survival package
+#' @param digits number of digits in the p-value to report
+#'
+#' @returns a p-value
+#' @export
+#'
+#' @examples
+#' TBD <- c("")
 calc_KMcurve_pvalues <- function(survdiff, digits=3){
   p <-  pchisq(survdiff$chisq, length(survdiff$n)-1,
               lower.tail = FALSE) %>%
@@ -579,9 +626,20 @@ calc_KMcurve_pvalues <- function(survdiff, digits=3){
 
 
 
-#create a table with OS/EFS percent at specified time point
+#
 #uses the summary() function on the survfit() object
-#can optionally input p-values manually from survdiff() function
+#
+#' create a table with OS/EFS percent at specified time point
+#'
+#' @param fit the output of the survFit() function
+#' @param time the time-point when to calculate the statistics (eg 5 yrs after follow-up)
+#' @param pvalues optionally input p-values manually from survdiff() function
+#'
+#' @returns a data.frame with the outcome statistics
+#' @export
+#'
+#' @examples
+#' TBD <- c("")
 outcome_table <- function(fit, time=5, pvalues=NULL){
 
   summ <- summary(fit, times=time)
