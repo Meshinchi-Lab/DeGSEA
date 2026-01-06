@@ -13,7 +13,7 @@
 #' @param time optional if you need to convert days to years for example.
 #' @param ref character indicating the group classification that is the reference
 #'
-#' @returns a list with survfit objects
+#' @returns a list with survival::survfit objects
 #' @export
 #'
 #' @examples
@@ -38,11 +38,11 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
   }
 
   #Kaplan Meier Estimates
-  KM <- Surv(time = time, event = df[[colNames[2]]])
+  KM <- survival::Surv(time = time, event = df[[colNames[2]]])
 
   if (group == 1){
     #model fit
-    survFit <- survfit(KM ~ 1)
+    survFit <- survival::survfit(KM ~ 1)
     return(survFit)
 
   }else{
@@ -52,13 +52,13 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
     }
 
     #model fit
-    survFit <- survfit(KM ~ df[,group], data=df)
+    survFit <- survival::survfit(KM ~ df[,group], data=df)
 
     #cox proportional Hazards
-    cph.test <- coxph(KM ~ df[,group])
+    cph.test <- survival::coxph(KM ~ df[,group])
 
     #test proportional hazards assumption
-    cph.zph <- cox.zph(cph.test, transform = "km")
+    cph.zph <- survival::cox.zph(cph.test, transform = "km")
     rhoPval <- as.data.frame(cph.zph$table)$p #test the PH assumption
 
     if (length(rhoPval) > 1){
@@ -95,7 +95,7 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
 #' @param pval string (charcter or numeric) of the p-value
 #' @param max.year time (singe numeric) in years to end the plot at.
 #'
-#' @returns a ggplot object
+#' @returns a ggplot2::ggplot object
 #' @export
 #'
 #' @examples
@@ -107,10 +107,6 @@ SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, color
   #colors is a character vector the same length as the number of groups.
   #max.year is the time (singe numeric) in years to end the plot at.
   #pval is string (charcter or numeric) of the p-value
-
-  # require(survival)
-  # library(ggplot2)
-  # library(GGally)
 
   if(is.null(pval)){
     pval <- ""
@@ -133,7 +129,7 @@ SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, color
     num.rows <- 1
 
     #main survival plot
-    p <- ggsurv(fit, surv.col = colors,
+    p <- GGally::ggsurv(fit, surv.col = colors,
                 cens.col=colors, CI=FALSE,
                 lty.est = 1, size.est = 1.0,
                 cens.size = 2.0,order.legend=FALSE)
@@ -171,7 +167,7 @@ SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, color
     }
 
     #main survival plot
-    p <- ggsurv(fit, plot.cens=include.censored,
+    p <- GGally::ggsurv(fit, plot.cens=include.censored,
                 surv.col = colors, CI=FALSE,
                 lty.est = 1, size.est = 1.0,
                 cens.size = 2.0,order.legend=FALSE)
@@ -186,7 +182,7 @@ SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, color
     scale_x_continuous(limits = c(0,pos.x),
                        breaks = seq(0,pos.x, 2)) +
 
-    theme(plot.title = element_text(hjust = 0.5, size=10),
+    ggplot2::theme(plot.title = element_text(hjust = 0.5, size=10),
           panel.background = element_rect(fill="white"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
@@ -203,7 +199,7 @@ SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, color
           legend.title = element_text(size=10),
           legend.key=element_blank()) +
 
-    theme(plot.margin = margin(0, rm,.5,lm,unit="cm")) +
+    ggplot2::theme(plot.margin = margin(0, rm,.5,lm,unit="cm")) +
     annotate(geom="text", x=1, y=0.05, label=pval, size=5) +
     guides(color=guide_legend(ncol=num.cols, nrow=num.rows))
 
@@ -220,7 +216,7 @@ SurvivalPlot <- function(fit, LegendTitle, timeUnit,include.censored=TRUE, color
 risk.table <- function(survFit.obj, f.levels=NULL,
                        times=NULL,col="black",
                        ret.data=FALSE, max.year=NULL){
-  #survFit.obj is the results  survfit()
+  #survFit.obj is the results  survival::survfit()
   #f.levels is an optional character vector to relevel the order of the groups, if desired. else levels is alphabetical
   #times would be a seperate numeric vector, with years/x-axis breaks points, if desired.
 
@@ -271,7 +267,7 @@ risk.table <- function(survFit.obj, f.levels=NULL,
 
 
   #gglot the risk table (risk.df)
-  tbl <- ggplot(risk.df, aes(x = time, y = Group, label=N.Risk)) +
+  tbl <- ggplot2::ggplot(risk.df, aes(x = time, y = Group, label=N.Risk)) +
     geom_text(size = 5)  +
     theme_bw()  +
     scale_x_continuous("Number at risk",
@@ -279,7 +275,7 @@ risk.table <- function(survFit.obj, f.levels=NULL,
                        breaks = times) +
     xlab(NULL) +
     ylab(NULL) +
-    theme(panel.grid.major = element_blank(),
+    ggplot2::theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           panel.border = element_blank(),
           legend.position="none",
@@ -293,7 +289,7 @@ risk.table <- function(survFit.obj, f.levels=NULL,
                                      color= col[levels(risk.df$Group)],
                                      hjust=1)) +
     #of note: this margin is still not perfect..... the size of window in Rstudio is different than what actually shows up on the tiff...
-    theme(plot.margin = margin(-1.5, rm, 0.1, lm, unit="cm"))
+    ggplot2::theme(plot.margin = margin(-1.5, rm, 0.1, lm, unit="cm"))
 
 
 
@@ -306,7 +302,7 @@ risk.table <- function(survFit.obj, f.levels=NULL,
 #' Create Kaplan-Meier Plots
 #'
 #' @param df cleaned CDE with patient IDs as rownames.
-#' @param group_vars character vector of a column name to group_by() in dplyr.
+#' @param group_vars character vector of a column name to dplyr::group_by() in dplyr.
 #' @param column_names list with colnames OS for OS and EFS for "EFS" in the CDE
 #' @param covariate character string for the column in CDE to be the explanatory variable
 #' @param cc color codes with one color per group
@@ -333,23 +329,23 @@ KM.plots <- function(df, group_vars=NULL,
 
   #Define KM estimates for survival analysis
   # if (cohort == "0531" & type=="OS"){
-  #   os.est <- "Surv(Overall.Survival.Time.in.Days/365.25, OS.ID)"
-  #   efs.est <- "Surv(Event.Free.Survival.Time.in.Days/365.25, Event.ID)"
+  #   os.est <- "survival::Surv(Overall.Survival.Time.in.Days/365.25, OS.ID)"
+  #   efs.est <- "survival::Surv(Event.Free.Survival.Time.in.Days/365.25, Event.ID)"
   # }else if (cohort == "1031" & type=="OS"){
-  #   os.est <- "Surv(OS.time..days./365.25, OS.ID)"
-  #   efs.est <- "Surv(EFS.time..days./365.25, Event.ID)"
+  #   os.est <- "survival::Surv(OS.time..days./365.25, OS.ID)"
+  #   efs.est <- "survival::Surv(EFS.time..days./365.25, Event.ID)"
   # }else if (cohort == "TCGA" & type=="OS"){
-  #   os.est <- "Surv(OS.months..3.31.12/12, clinData1.vital_status)"
-  #   efs.est <- "Surv(EFS.months....3.31.12/12, first.event)"
+  #   os.est <- "survival::Surv(OS.months..3.31.12/12, clinData1.vital_status)"
+  #   efs.est <- "survival::Surv(EFS.months....3.31.12/12, first.event)"
   # }else if (cohort=="BEAT_AML" & type=="OS"){
-  #   os.est <- "Surv(OverallSurvival_VIZOME/365.25, OS.ID)"
+  #   os.est <- "survival::Surv(OverallSurvival_VIZOME/365.25, OS.ID)"
   #   #No EFS data available
   # }else if (type=="EOI"){
 
-  os.est <- glue::glue("Surv({column_names$OS[1]}, {column_names$OS[2]})")
+  os.est <- glue::glue("survival::Surv({column_names$OS[1]}, {column_names$OS[2]})")
 
   if(!is.null(column_names[["EFS"]])){
-    efs.est <- glue::glue("Surv({column_names$EFS[1]}, {column_names$EFS[2]})")
+    efs.est <- glue::glue("survival::Surv({column_names$EFS[1]}, {column_names$EFS[2]})")
   }
 
   #function for colors
@@ -395,11 +391,11 @@ KM.plots <- function(df, group_vars=NULL,
 
   #perform survival analysis for all factor levels
   grouped.df <-  df %>%
-      group_by(!!! rlang::syms(group_vars)) %>%
-      do(OS.cox=coxph(OS.form, data = .),
-         OS.fit=survfit(OS.form, data=.),
+      dplyr::group_by(!!! rlang::syms(group_vars)) %>%
+      do(OS.cox=survival::coxph(OS.form, data = .),
+         OS.fit=survival::survfit(OS.form, data=.),
          OS.diff=survdiff(OS.form, data=.), #survdiff for log-rank p-value
-         OS=SurvivalPlot(survfit(OS.form, data=.), #survival plots
+         OS=SurvivalPlot(survival::survfit(OS.form, data=.), #survival plots
                          LegendTitle = covariate,
                          timeUnit = "Years",
                          max.year = max.year,
@@ -411,11 +407,11 @@ KM.plots <- function(df, group_vars=NULL,
       EFS.form <- as.formula(paste(efs.est,' ~ ', covariate))
 
       grouped.df.efs <-  df %>%
-        group_by(!!! rlang::syms(group_vars)) %>%
-        do( EFS.cox=coxph(EFS.form, data = .),
-            EFS.fit=survfit(EFS.form, data=.),
+        dplyr::group_by(!!! rlang::syms(group_vars)) %>%
+        dplyr::do( EFS.cox=survival::coxph(EFS.form, data = .),
+            EFS.fit=survival::survfit(EFS.form, data=.),
             EFS.diff=survdiff(EFS.form, data=.), #survdiff for log-rank p-value
-            EFS=DeGSEA::SurvivalPlot(survfit(EFS.form, data=.),
+            EFS=DeGSEA::SurvivalPlot(survival::survfit(EFS.form, data=.),
                              LegendTitle= covariate,
                              timeUnit= "Years",
                              max.year = max.year,
@@ -427,17 +423,17 @@ KM.plots <- function(df, group_vars=NULL,
 
     #Denote the grouping variable in the results dataframe
     if(is.null(group_vars)){
-      grouped.df <- add_column(grouped.df, Group="AML",.before = 1)
+      grouped.df <- tibble::add_column(grouped.df, Group="AML",.before = 1)
     }else{
       col.idx <- which(colnames(grouped.df)=="OS.cox")-1
-      grouped.df <- unite(grouped.df,
+      grouped.df <- tidyr::unite(grouped.df,
                           "Group",1:all_of(col.idx), remove = FALSE, sep=" in ")
     }
 
 
   #function to calculate a p-value
   pvalue <- function(survdiff.res){
-    p <- pchisq(survdiff.res$chisq, df=length(survdiff.res$n) - 1, lower=FALSE)
+    p <- stats::pchisq(survdiff.res$chisq, df=length(survdiff.res$n) - 1, lower=FALSE)
     p <- ifelse(p < 0.001, "p < 0.001", paste0("p = ", round(p, digits = 3)))
     return(p)
   }
@@ -474,7 +470,7 @@ KM.plots <- function(df, group_vars=NULL,
       #Add P value and the N
       grouped.df[[plot.idx]][[i]] <- grouped.df[[plot.idx]][[i]] +
         annotate(geom="text", x=x_pos, y=y_pos, label=pval, size=5) +
-        theme(plot.title = element_text(face="bold"))
+        ggplot2::theme(plot.title = element_text(face="bold"))
 
       #Add a risk table (Number of patients at risk at each time )
       if(riskTable){
@@ -487,10 +483,10 @@ KM.plots <- function(df, group_vars=NULL,
                                  max.year=max.year)
 
         # Create a blank plot for place-holding
-        blank.pic <- ggplot(risk.tab, aes(time, surv)) +
+        blank.pic <- ggplot2::ggplot(risk.tab, aes(time, surv)) +
           geom_blank() +
           theme_bw() +
-          theme(axis.text.x = element_blank(),
+          ggplot2::theme(axis.text.x = element_blank(),
                 axis.text.y = element_blank(),
                 axis.title.x = element_blank(),
                 axis.title.y = element_blank(),
@@ -532,7 +528,7 @@ saveMultiPlots <- function(KM.plots.res,w=8,h=5){
   cols <- grep("diff",colnames(KM.plots.res), value = TRUE, invert = TRUE)[-1]
 
   for (col in cols){
-    lapply(1:N, function(x) ggsave(filename = name(x),
+    lapply(1:N, function(x) ggplot2::ggsave(filename = name(x),
                                    plot = KM.plots.res[[col]][[x]],
                                    device = "tiff",
                                    width = w,
@@ -547,7 +543,7 @@ saveMultiPlots <- function(KM.plots.res,w=8,h=5){
 
 #Added from LSC17  Analysis  on July 12, 2017.
 weibull.HR <- function(weibull.mod){
-  #weibull.mod is the output of survreg(, dist="wiebull")
+  #weibull.mod is the output of survival::survreg(, dist="wiebull")
   # multivar is a numeric vector idicating the indices of multi varaite analysis to be returned.
   if (is.null(multivar)){
     idx <- 2 #univariate analysis
@@ -561,19 +557,19 @@ weibull.HR <- function(weibull.mod){
 
 #Added from LSC17  Analysis  on July 12, 2017.
 parametricSumaryTable <- function(survreg.res){
-  summ <- summary(survreg.res)
+  summ <- summary(survival::survreg.res)
   table <- as.data.frame(summ$table)
 
   # coef <- summ$coefficients[which(! grepl("Int", names(summ$coefficients)))]
-  idx <- which( ! grepl("Int|Log", names(survreg.res$coefficients)))
+  idx <- which( ! grepl("Int|Log", names(survival::survreg.res$coefficients)))
 
-  UCI_HR2 <- round(exp((survreg.res$coefficients[idx] - 1.96*table$`Std. Error`[idx])*-1*1/survreg.res$scale),
+  UCI_HR2 <- round(exp((survival::survreg.res$coefficients[idx] - 1.96*table$`Std. Error`[idx])*-1*1/survival::survreg.res$scale),
                    digits = 3)
-  LCI_HR2 <- round(exp((survreg.res$coefficients[idx]  + 1.96*table$`Std. Error`[idx])*-1*1/survreg.res$scale),
+  LCI_HR2 <- round(exp((survival::survreg.res$coefficients[idx]  + 1.96*table$`Std. Error`[idx])*-1*1/survival::survreg.res$scale),
                    digits=3)
 
 
-  HR <- round(exp(survreg.res$coefficients[idx]*-1*1/survreg.res$scale), digits = 3)
+  HR <- round(exp(survival::survreg.res$coefficients[idx]*-1*1/survival::survreg.res$scale), digits = 3)
   CI <- paste(LCI_HR2, UCI_HR2, sep="-")
   pVal <- round(table$p[idx], digits=3)
 
@@ -627,7 +623,7 @@ calc_KMcurve_pvalues <- function(survdiff, digits=3){
 
 
 #
-#uses the summary() function on the survfit() object
+#uses the summary() function on the survival::survfit() object
 #
 #' create a table with OS/EFS percent at specified time point
 #'
@@ -693,7 +689,7 @@ outcome_table <- function(fit, time=5, pvalues=NULL){
 
 # introduction This entire function was written by Lindsay Keegan based off
 # a tutorial by Edwin Thoen posted here:
-# http://www.r-statistics.com/2013/07/creating-good-looking-survival-curves-the-ggsurv-function/
+# http://www.r-statistics.com/2013/07/creating-good-looking-survival-curves-the-GGally::ggsurv-function/
 # and slightly adapted by Avery McIntosh, 2015.
 #See TCGA AML 05May2017.Rmd for example usage.
 #S is the fit object
@@ -732,12 +728,12 @@ ggsurv.m <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
   dat <- do.call(rbind, gr.df)
   dat.cens <- subset(dat, cens != 0)
 
-  pl <- ggplot(dat, aes(x = time, y = surv, group = group)) +
+  pl <- ggplot2::ggplot(dat, aes(x = time, y = surv, group = group)) +
     xlab(xlab) + ylab(ylab) + ggtitle(main) +
     geom_step(aes(col = group),lty=1, size=1.15) +
     geom_point(data = dat.cens, aes(x=time, y=surv, color=group), shape=3, size=4) +
     labs(y= "Fraction Surviving", x = paste("Follow-up in", "Years")) +
-    theme(plot.title = element_text(hjust = 0.5, size=18),
+    ggplot2::theme(plot.title = element_text(hjust = 0.5, size=18),
           panel.background = element_rect(fill="white"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),

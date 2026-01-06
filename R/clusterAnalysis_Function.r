@@ -264,7 +264,7 @@ PCA <- function(expnData,phenovector,title="",round=TRUE,colorCodes=NULL,
 #' @examples
 #' mat <- sapply(1:10, function(i){ runif(100,min = 0, max = 15) })
 #' colnames(mat) <- paste0("s",1:10)
-#' metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
+#' metadata <- data.frame(sample_id = paste0("s",1:10), mutation = rep("yes","no", length.out = 10))
 #' rownames(metadata) <- paste0("s",1:10)
 #' pca_custom(expnData = mat,  CDE = metadata, fillCol = "mutation", colorCol = "mutation")
 pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE,
@@ -286,9 +286,11 @@ pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE
   summ <- summary(pca)
 
   scores <- as.data.frame(pca$x) %>%
-    tibble::rownames_to_column("USI") %>%
-    dplyr::inner_join(., dplyr::select(CDE,USI=matches("USI$"), everything()), by="USI") %>%
-    dplyr::select(USI,fillCol, colorCol, everything())
+    tibble::rownames_to_column("sample_id") %>%
+    dplyr::inner_join(., dplyr::select(CDE,sample_id=matches("sample_id$"),
+                                       everything()),
+                      by="sample_id") %>%
+    dplyr::select(sample_id, fillCol, colorCol, everything())
 
   #Plot function for  PC1 and either PC2 or anyother
   pca.plot_function <- function(scores,PC){

@@ -44,7 +44,7 @@ Custom PCA plot
 \examples{
 mat <- sapply(1:10, function(i){ runif(100,min = 0, max = 15) })
 colnames(mat) <- paste0("s",1:10)
-metadata <- data.frame(mutation = rep("yes","no", length.out = 10))
+metadata <- data.frame(sample_id = paste0("s",1:10), mutation = rep("yes","no", length.out = 10))
 rownames(metadata) <- paste0("s",1:10)
 pca_custom(expnData = mat,  CDE = metadata, fillCol = "mutation", colorCol = "mutation")
 }
