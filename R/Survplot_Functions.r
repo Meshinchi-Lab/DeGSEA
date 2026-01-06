@@ -52,7 +52,7 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
     }
 
     #model fit
-    survFit <- survival::survfit(KM ~ df[,group], data=df)
+    survFit <- survival::survfit(KM ~ group, data=df)
 
     #cox proportional Hazards
     cph.test <- survival::coxph(KM ~ df[,group])
