@@ -134,13 +134,13 @@ plotPCA.DESeq.mod <- function(object, intgroup="condition", ntop=500, returnData
   }
 
   if(PC3){
-    ggplot(data=d, aes_string(x="PC1", y="PC3", color="group")) +
+    ggplot(data=d, ggplot2::aes_string(x="PC1", y="PC3", color="group")) +
       geom_point(size=3, alpha=0.75) +
       xlab(paste0("PC1: ",round(percentVar[1] * 100),"% variance")) +
       ylab(paste0("PC3: ",round(percentVar[3] * 100),"% variance"))
 
   }else{
-    ggplot(data=d, aes_string(x="PC1", y="PC2", color="group")) +
+    ggplot(data=d, ggplot2::aes_string(x="PC1", y="PC2", color="group")) +
       geom_point(size=3, alpha=0.75) +
       xlab(paste0("PC1: ",round(percentVar[1] * 100),"% variance")) +
       ylab(paste0("PC2: ",round(percentVar[2] * 100),"% variance"))
@@ -298,7 +298,7 @@ pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE
     idx <- as.numeric(gsub("[A-Za-z]{2}","", PC))
 
 
-    pca.plot  <- ggplot2::ggplot(scores, aes_string(x="PC1", y=PC)) +
+    pca.plot  <- ggplot2::ggplot(scores, ggplot2::aes_string(x="PC1", y=PC)) +
       labs(x=paste("PC1: ", round(summ$importance[2,1], digits=3)*100, "% variance"),
            y=paste(paste0(PC,": "), round(summ$importance[2,idx], digits=3)*100, "% variance")) +
       theme_numX  +
@@ -308,15 +308,15 @@ pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE
     if(single.col.outline){
       pca.plot <- pca.plot +
         geom_point(size=5,stroke=0.2, alpha=1,shape=21,color="white",
-                   aes_string(fill=fillCol)) +
+                   ggplot2::aes_string(fill=fillCol)) +
         geom_point(data=subset(scores, scores[,colorCol] == toHighlight),
-                   aes_string(x="PC1", y=PC, color=colorCol),
+                   ggplot2::aes_string(x="PC1", y=PC, color=colorCol),
                    size=4, stroke=1, alpha=1,shape=21)
 
     }else{
       pca.plot <- pca.plot +
         geom_point(size=5, stroke=2, alpha=0.85,shape=21,
-                   aes_string(fill=fillCol, color=colorCol))
+                   ggplot2::aes_string(fill=fillCol, color=colorCol))
     }
 
     if(!is.null(colorCode)){
@@ -334,7 +334,7 @@ pca_custom <- function(expnData,CDE,fillCol, colorCol, colorCode=NULL, PC3=FALSE
     if(ellipse){
         pca.plot <- pca.plot +
           stat_ellipse(data=scores, type="norm",
-                       aes_string(x="PC1", y=PC, fill=fillCol),
+                       ggplot2::aes_string(x="PC1", y=PC, fill=fillCol),
                        geom="polygon", alpha=0.1)
     }
 
