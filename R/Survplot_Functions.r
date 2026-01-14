@@ -66,8 +66,8 @@ SurvObjects <- function(df, colNames, group, rho=0, time=NULL,ref=NULL){
     }
 
     # survMisc compare stat tests for two curves
-    tne <- ten(eval(survFit$call$formula), data=df)
-    capture.output(comp(tne)) -> allTests
+    tne <- survMisc::ten(eval(survFit$call$formula), data=df)
+    capture.output(survMisc::comp(tne)) -> allTests
 
     if (rhoPval >= 0.05 ){
       attr(tne, "lrt")[1,] -> pVal #log-rank test
